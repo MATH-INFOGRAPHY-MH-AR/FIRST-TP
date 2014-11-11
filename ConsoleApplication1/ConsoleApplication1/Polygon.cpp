@@ -1,7 +1,7 @@
 /*
 Fichier :							Polygon
 Date de création :					06/11/2014
-Date de dernière modification :		08/11/2014
+Date de dernière modification :		11/11/2014
 Auteur:								Alexandre Rivet / Maxime Hélaine
 */
 #include "Polygon.h"
@@ -29,6 +29,17 @@ void Polygon::setPoints(std::vector<Vector2> vl)
 {
 	mVectorList = vl;
 }
+
+std::ostream& operator << (std::ostream& os, const Polygon& pol)
+{
+	for (int i = 0; i < pol.getNbVertices(); i++)
+	{
+		os << pol.mVectorList[i] << std::endl;
+	}
+
+	return os;
+}
+
 
 Vector2& Polygon::getPointAt(const int i)
 {
@@ -58,7 +69,7 @@ bool Polygon::isConvex() const
 	Vector2 prev, current, next;
 	Vector2 firstSide, nextSide;
 	float angle;
-	for (int i = 1; i < mVectorList.size(); i++)
+	for (unsigned int i = 1; i < mVectorList.size(); i++)
 	{
 		prev = mVectorList[i - 1];
 		current = mVectorList[i];
@@ -78,99 +89,155 @@ bool Polygon::isConcave() const
 	return !isConvex();
 }
 
-Polygon& Polygon::polygonWindowed(Polygon& window)
+Polygon Polygon::polygonWindowed(Polygon& window)
 {
-	std::vector<Vector2> listOfPointsPolygon = mVectorList;
-	std::vector<Vector2> listOfPointsWindow = window.getPoints();
-	std::vector<Vector2> listOfPointsNewPoly;
-
-	int i, j;
-	int nbPointsNewWindow;
-
-	Vector2 S, F, I;
-
-	for (i = 1; i < (listOfPointsWindow.size() - 1); i++)
+	if (mVectorList.size() < 3 || window.getPoints().size() < 4)
 	{
-		listOfPointsNewPoly.clear();
-		for (j = 1; j < (listOfPointsPolygon.size()); j++)
+		std::cout << "La fenetre et/ou le polygone doivent posséder au minimum 3 sommets" << std::endl;
+		return Polygon(mVectorList);
+	}
+		
+
+	std::vector<Vector2> pointListInputPolygon = mVectorList;
+
+	std::vector<Vector2> pointListOutputPolygon;
+	
+	std::vector<Vector2> pointListWindow = window.getPoints();
+	Vector2 BA = pointListWindow[1] - pointListWindow[0];
+	Vector2 BC = pointListWindow[1] - pointListWindow[2];
+
+	if (pointListWindow.size() >= 3 && BA.orientationTriangle(BC) < 0)
+		std::reverse(pointListWindow.begin(), pointListWindow.end());
+
+	int i = 0, j = 0;
+	int nbPointOutputPolygon = 0;
+	int nbPointInputPolygon = pointListInputPolygon.size();
+	int nbPointWindow = pointListWindow.size() - 1;
+
+	Vector2 S, F, I, inter;
+	
+	// Pour chaque point de la window
+	for (i = 0; i < nbPointWindow; i++)
+	{
+		nbPointOutputPolygon = 0;
+		pointListOutputPolygon.clear();
+		 
+		// Pour chaque point du polygone
+		for (j = 0; j < nbPointInputPolygon; j++)
 		{
-			if (j == 1)
-				F = listOfPointsPolygon[j];
-			else
+			if (j == 0)
 			{
-				if (coupe(S, listOfPointsPolygon[j] , listOfPointsWindow[i], listOfPointsWindow[i+1]))
-				{
-					I = intersections(S, listOfPointsPolygon[j], listOfPointsWindow[i], listOfPointsWindow[i+1]);
-					listOfPointsNewPoly.push_back(I);
-				}
+				F = pointListInputPolygon[j]; // On sauve le 1er sommet
 			}
-			S = listOfPointsPolygon[j];
-			if (visible(S, listOfPointsWindow[i], listOfPointsWindow[i+1]))
+			else if (intersection(S, pointListInputPolygon[j], pointListWindow[i], pointListWindow[i + 1], inter))
 			{
-				listOfPointsNewPoly.push_back(S);
+				pointListOutputPolygon.push_back(inter);
+				nbPointOutputPolygon++;
+			}
+
+			S = pointListInputPolygon[j];
+			if (visible(S, pointListWindow[i], pointListWindow[i + 1]))
+			{
+				pointListOutputPolygon.push_back(S);
+				nbPointOutputPolygon++;
 			}
 		}
-	}
-	if (listOfPointsNewPoly.size() > 0)
-	{
-		if(coupe(S, F , listOfPointsWindow[i], listOfPointsWindow[i+1]))
+
+		if (nbPointOutputPolygon > 0)
 		{
-			I = intersection(S, F,  listOfPointsWindow[i], listOfPointsWindow[i+1]);
-			listOfPointsNewPoly.push_back(I);
+			if (intersection(S, F, pointListWindow[i], pointListWindow[i + 1], inter))
+			{
+				pointListOutputPolygon.push_back(inter);
+				nbPointOutputPolygon++;
+			}
+
+			pointListInputPolygon = pointListOutputPolygon;
+			nbPointInputPolygon = nbPointOutputPolygon;
 		}
-		listOfPointsPolygon = listOfPointsNewPoly;
 	}
-	return Polygon(listOfPointsNewPoly);
+
+	Polygon outputPol(pointListInputPolygon);
+	outputPol.clean();
+
+	return outputPol;
 }
 
-bool coupe(Vector2& A, Vector2& B, Vector2& C, Vector2& D)
+void Polygon::clean()
 {
-	
-	float a1 = (B.getY() - A.getY()) / (B.getX() - A.getX());
-	float b1 = A.getY() - (a1 * A.getX());
+	int i;
+	Vector2 currentVector, nextVector;
+	for (i = 0; i < mVectorList.size() - 1; i++)
+	{
+		currentVector = mVectorList[i];
+		nextVector = mVectorList[i + 1];
+		if (currentVector == nextVector)
+		{
+			mVectorList.erase(mVectorList.begin() + (i + 1));
+			i--;
+		}			
+	}
+}
 
-	float a2 = (D.getY() - C.getY()) / (D.getX() - C.getX());
-	float b2 = C.getY() - (a2 * C.getX());
+bool intersection(Vector2& sA, Vector2& sB, Vector2& dA, Vector2& dB, Vector2& inter)
+{
+	// Equation paramétrique d'une droite à partir de deux points
+	// P(t) = sA + (sB - sA)t
+	// Q(s) = dA + (dB - dA)s
+	// ^ * X = b 
 
-	if (a1 - a2 == 0)
+	// Définition de la matrice 2x2 -> ^
+	float matrix[2][2];
+	matrix[0][0] = sB.getX() - sA.getX();
+	matrix[0][1] = dA.getX() - dB.getX();
+	matrix[1][0] = sB.getY() - sA.getY();
+	matrix[1][1] = dA.getY() - dB.getY();
+
+	// Calcul du déterminant
+	float determinant = (sB.getX() - sA.getX()) * (dA.getY() - dB.getY()) - (sB.getY() - sA.getY()) * (dA.getX() - dB.getX());
+
+	// On quitte si le déterminant est nul
+	if (determinant == 0.0f)
 		return false;
 
-	float x = (b2 - b1) / (a1 - a2);
+	// On calcul l'inverse de la matrice -> ^-1
+	float invmatrix[2][2];
+	invmatrix[0][0] = matrix[1][1] * (1 / determinant);
+	invmatrix[0][1] = -matrix[0][1] * (1 / determinant);
+	invmatrix[1][0] = -matrix[1][0] * (1 / determinant);
+	invmatrix[1][1] = matrix[0][0] * (1 / determinant);
 
-	if (x >= A.getX() && x <= B.getX())
+	// Définition du b
+	float bMatrix[2];
+	bMatrix[0] = dA.getX() - sA.getX();
+	bMatrix[1] = dA.getY() - sA.getY();
+
+	// Résultat de la multiplication -> ^-1 * b
+	float X[2];
+	// correspond à t
+	X[0] = invmatrix[0][0] * bMatrix[0] + invmatrix[0][1] * bMatrix[1];
+
+	// correspond à s
+	X[1] = invmatrix[1][0] * bMatrix[0] + invmatrix[1][1] * bMatrix[1];
+
+	// t compris entre 0 et 1 du coup le point d'intersection est sur le segment
+	if (X[0] >= 0.0f && X[0] <= 1.0f)
+	{
+		inter = sA + (sB - sA) * X[0];
 		return true;
-
-	return false;
-}
-
-Vector2& intersection(Vector2& A, Vector2& B, Vector2& C, Vector2& D)
-{
-
-	float a1 = (B.getY() - A.getY()) / (B.getX() - A.getX());
-	float b1 = A.getY() - (a1 * A.getX());
-
-	float a2 = (D.getY() - C.getY()) / (D.getX() - C.getX());
-	float b2 = C.getY() - (a2 * C.getX());
-
-	if (a1 - a2 == 0)
-		return Vector2();
-
-	float x = (b2 - b1) / (a1 - a2);
-	float y = a1 * x + b1;
-
-	if (x >= A.getX() && x <= B.getX())
-		return Vector2(x,y);
-
-	return Vector2();
+	}
+	else
+	{
+		return false;
+	}
 }
 
 bool visible(Vector2& S, Vector2& A, Vector2& B)
 {
-	Vector2 AB = Vector2(B.getX() - A.getX(), B.getY() - A.getY());
-	Vector2 AS = Vector2(S.getX() - A.getX(), S.getY() - A.getY());
+	Vector2 AB = B - A;
+	Vector2 AS = S - A;
 
-	if (AS.getX()*AB.getY() - AS.getY()*AB.getX() > 0)
+	if (AS.crossProduct(AB) >= 0)
 		return true;
-
+	
 	return false;
 }
