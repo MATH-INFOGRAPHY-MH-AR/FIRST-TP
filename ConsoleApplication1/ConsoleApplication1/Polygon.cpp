@@ -30,6 +30,34 @@ void Polygon::setPoints(std::vector<Vector2> vl)
 	mVectorList = vl;
 }
 
+float* Polygon::getStrokeColor() const
+{
+	return mStrokeColor;
+}
+
+void Polygon::setStrokeColor(float r, float g, float b)
+{
+	//TODO: rajouter l'allocation
+
+	mStrokeColor[0] = r;
+	mStrokeColor[1] = g;
+	mStrokeColor[2] = b;
+}
+
+float* Polygon::getFillColor() const
+{
+	return mFillCcolor;
+}
+
+void Polygon::setFillColor(float r, float g, float b)
+{
+	//TODO: rajouter l'allocation
+
+	mStrokeColor[0] = r;
+	mStrokeColor[1] = g;
+	mStrokeColor[2] = b;
+}
+
 std::ostream& operator << (std::ostream& os, const Polygon& pol)
 {
 	for (int i = 0; i < pol.getNbVertices(); i++)
@@ -46,7 +74,7 @@ Vector2& Polygon::getPointAt(const int i)
 	return mVectorList[i];
 }
 
-void Polygon::add(Vector2& v)
+void Polygon::add(const Vector2& v)
 {
 	mVectorList.push_back(v);
 }
@@ -89,25 +117,31 @@ bool Polygon::isConcave() const
 	return !isConvex();
 }
 
-Polygon Polygon::polygonWindowed(Polygon& window)
+Polygon Polygon::polygonWindowed(Polygon& window) const
 {
-	if (mVectorList.size() < 3 || window.getPoints().size() < 4)
+	if (mVectorList.size() < 3 || window.getPoints().size() < 3)
 	{
 		std::cout << "La fenetre et/ou le polygone doivent posséder au minimum 3 sommets" << std::endl;
 		return Polygon(mVectorList);
 	}
-		
-
+	
 	std::vector<Vector2> pointListInputPolygon = mVectorList;
 
 	std::vector<Vector2> pointListOutputPolygon;
 	
 	std::vector<Vector2> pointListWindow = window.getPoints();
+	pointListWindow.push_back(pointListWindow[0]);
 	Vector2 BA = pointListWindow[1] - pointListWindow[0];
 	Vector2 BC = pointListWindow[1] - pointListWindow[2];
 
 	if (pointListWindow.size() >= 3 && BA.orientationTriangle(BC) < 0)
 		std::reverse(pointListWindow.begin(), pointListWindow.end());
+
+	/*if (window.isConcave())
+	{
+		std::cout << "La fenetre est concave. Desole je ne sais pas quoi faire..." << std::endl;
+		return Polygon();
+	}*/
 
 	int i = 0, j = 0;
 	int nbPointOutputPolygon = 0;
@@ -157,14 +191,33 @@ Polygon Polygon::polygonWindowed(Polygon& window)
 	}
 
 	Polygon outputPol(pointListInputPolygon);
-	outputPol.clean();
+	outputPol.removeDuplicateVertices();
 
 	return outputPol;
 }
 
-void Polygon::clean()
+void Polygon::draw() const
 {
-	int i;
+	if (mVectorList.size() == 1)
+		glBegin(GL_POINTS);
+	else if (mVectorList.size() == 2)
+		glBegin(GL_LINES);
+	else
+		glBegin(GL_LINE_LOOP);
+
+	Vector2 v;
+	for (int i = 0; i < mVectorList.size(); i++)
+	{
+		v = mVectorList[i];
+		glVertex2f(v.getX(), v.getY());
+	}
+
+	glEnd();
+}
+
+void Polygon::removeDuplicateVertices()
+{
+	unsigned int i;
 	Vector2 currentVector, nextVector;
 	for (i = 0; i < mVectorList.size() - 1; i++)
 	{
@@ -176,6 +229,11 @@ void Polygon::clean()
 			i--;
 		}			
 	}
+}
+
+void Polygon::reset()
+{
+	mVectorList.clear();
 }
 
 bool intersection(Vector2& sA, Vector2& sB, Vector2& dA, Vector2& dB, Vector2& inter)

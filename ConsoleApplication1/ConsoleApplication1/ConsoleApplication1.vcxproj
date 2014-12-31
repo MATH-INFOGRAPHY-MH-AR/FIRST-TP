@@ -42,15 +42,19 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>C:\Users\Alexandre\Downloads\glut-3.7.6-src\glut-3.7.6\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Alexandre\Downloads\glut-3.7.6-src\glut-3.7.6\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>C:\Users\Alexandre\Downloads\glut-3.7.6-src\glut-3.7.6\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Alexandre\Downloads\glut-3.7.6-src\glut-3.7.6\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
@@ -79,11 +83,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Color.h" />
+    <ClInclude Include="Constants.h" />
+    <ClInclude Include="FenetreRemplissageInterface.h" />
     <ClInclude Include="Polygon.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Vector2.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Color.cpp" />
+    <ClCompile Include="Constants.cpp" />
+    <ClCompile Include="FenetreRemplissageInterface.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Polygon.cpp" />
     <ClCompile Include="Vector2.cpp" />
