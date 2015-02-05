@@ -26,11 +26,8 @@ public:
 	std::vector<Vector2> getPoints();
 	void setPoints(std::vector<Vector2>);
 
-	float* getStrokeColor() const;
-	void setStrokeColor(float, float, float);
-
-	float* getFillColor() const;
-	void setFillColor(float, float, float);
+	float* getColor() const;
+	void setColor(float, float, float);
 
 	// Méthode d'affichage (notamment pour le debug)
 	friend std::ostream& operator << (std::ostream&, const Polygon&);
@@ -51,9 +48,11 @@ public:
 
 private:
 	std::vector<Vector2> mVectorList;
+	float* mColor;
 
-	float* mFillCcolor;
-	float* mStrokeColor;
+	float mRed;
+	float mGreen;
+	float mBlue;
 };
 
 bool intersection(Vector2& sA, Vector2& sB, Vector2& dA, Vector2& dB, Vector2& inter);

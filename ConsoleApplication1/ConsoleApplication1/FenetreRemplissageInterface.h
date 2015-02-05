@@ -8,5 +8,16 @@ void motion(int, int);
 void mouseDown(int, int, int);
 void mouseUp(int, int, int);
 
+void initMenu();
+void updateMenu();
+
+void select(int selection);
+void selectPolygon(int selection);
+void selectWindow(int selection);
+void selectFillMod(int selection);
+void selectWindowMod(int selection);
+void editPolygon(int selection);
+void addPolygonItem(int parent, int index);
+void setColor(int selection);
 
 #endif

@@ -1,21 +1,45 @@
 /*
 Fichier :							Polygon
 Date de création :					06/11/2014
-Date de dernière modification :		11/11/2014
+Date de dernière modification :		04/02/2015
 Auteur:								Alexandre Rivet / Maxime Hélaine
 */
 #include "Polygon.h"
 
-Polygon::Polygon() {}
+Polygon::Polygon() : mRed(1.0), mGreen(1.0), mBlue(1.0)
+{
+	/*
+	mColor = new float[3];
+	mColor[0] = 1.0f;
+	mColor[1] = 1.0f;
+	mColor[2] = 1.0f;
+	*/
+	std::cout << "Constructeur par défaut" << std::endl;
+	// mRed = 1.0;
+	// mGreen = 1.0;
+	// mBlue = 1.0;
+}
 
 Polygon::Polygon(const std::vector<Vector2> points)
 {
 	mVectorList = points;
+	
+	/*mColor = new float[3];
+	mColor[0] = 1.0f;
+	mColor[1] = 1.0f;
+	mColor[2] = 1.0f;*/
+	// mRed = 1.0;
+	// mGreen = 1.0;
+	// mBlue = 1.0;
 }
 
 Polygon::Polygon(const Polygon& p)
 {
 	mVectorList = p.mVectorList;
+	mColor = new float[3];
+	mColor[0] = 1.0f;
+	mColor[1] = 1.0f;
+	mColor[2] = 1.0f;
 }
 
 Polygon::~Polygon(void) {}
@@ -30,32 +54,20 @@ void Polygon::setPoints(std::vector<Vector2> vl)
 	mVectorList = vl;
 }
 
-float* Polygon::getStrokeColor() const
+float* Polygon::getColor() const
 {
-	return mStrokeColor;
+	return mColor;
 }
 
-void Polygon::setStrokeColor(float r, float g, float b)
+void Polygon::setColor(float r, float g, float b)
 {
-	//TODO: rajouter l'allocation
-
-	mStrokeColor[0] = r;
-	mStrokeColor[1] = g;
-	mStrokeColor[2] = b;
-}
-
-float* Polygon::getFillColor() const
-{
-	return mFillCcolor;
-}
-
-void Polygon::setFillColor(float r, float g, float b)
-{
-	//TODO: rajouter l'allocation
-
-	mStrokeColor[0] = r;
-	mStrokeColor[1] = g;
-	mStrokeColor[2] = b;
+	std::cout << "COLOR UPDATED" << std::endl;
+	/*mColor[0] = r;
+	mColor[1] = g;
+	mColor[2] = b;*/
+	mRed = r;
+	mGreen = g;
+	mBlue = b;
 }
 
 std::ostream& operator << (std::ostream& os, const Polygon& pol)
@@ -198,6 +210,9 @@ Polygon Polygon::polygonWindowed(Polygon& window) const
 
 void Polygon::draw() const
 {
+	std::cout << mRed << " " << mGreen << " " << mBlue << std::endl;
+	glColor3f(mRed, mGreen, mBlue);
+
 	if (mVectorList.size() == 1)
 		glBegin(GL_POINTS);
 	else if (mVectorList.size() == 2)
