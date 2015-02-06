@@ -39,26 +39,23 @@ void display()
 
 	// Dessin des polygones
 	for (unsigned int i = 0; i < polygons.size(); ++i)
-		polygons[i].draw();
+		polygons[i]->draw();
 
 	// Dessin des fenêtres
 	for (unsigned int i = 0; i < windows.size(); ++i)
-		windows[i].draw();
+		windows[i]->draw();
 
-	glFlush();
-	/*
-	glClearColor(0.0F, 0.0F, 0.0F, 0.0F);
-	glClear(GL_COLOR_BUFFER_BIT);
-	glColor3f(1.0F, 1.0F, 1.0F);
-
-	glBegin(GL_LINE_LOOP);
-	glVertex2f(50.0f, 50.0f);
-	glVertex2f(100.0f, 50.0f);
-	glVertex2f(100.0f, 100.0f);
+	// Dessin du carré d'édition
+	glColor3f(0.0f, 0.0f, 1.0f);
+	glBegin(GL_POLYGON);
+	glVertex2f(VECTOR_EDITED.getX() - 0.01, VECTOR_EDITED.getY() - 0.01);
+	glVertex2f(VECTOR_EDITED.getX() + 0.01, VECTOR_EDITED.getY() - 0.01);
+	glVertex2f(VECTOR_EDITED.getX() + 0.01, VECTOR_EDITED.getY() + 0.01);
+	glVertex2f(VECTOR_EDITED.getX() - 0.01, VECTOR_EDITED.getY() + 0.01);
 	glEnd();
 
+
 	glFlush();
-	*/
 }
 
 void myInit()

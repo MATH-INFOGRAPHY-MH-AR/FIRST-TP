@@ -19,11 +19,8 @@ void key(unsigned char k, int x, int y)
 			state = 1;
 			break;
 		case 'a':
-			pol = pol.polygonWindowed(win);
 			break;
 		case 'r':
-			pol.reset();
-			win.reset();
 			break;
 	}
 
@@ -46,30 +43,49 @@ void motion(int x, int y)
 
 void mouseDown(int button, int x, int y)
 {
+	float xF = (float)x / ((float)WINDOW_WIDTH / 2.0) + (-1.0f);
+	float yF = -((float)y / ((float)WINDOW_HEIGHT / 2.0) + (-1.0f));
+
 	if (button == GLUT_LEFT_BUTTON)
 	{
-		float xF = (float)x / ((float)WINDOW_WIDTH / 2.0) + (-1.0f);
-		float yF = -((float)y / ((float)WINDOW_HEIGHT / 2.0) + (-1.0f));
-
 		if (WINDOW_OR_POLYGON_EDITED == 1 && CURRENT_POLYGON_EDITED >= 0 && CURRENT_POLYGON_EDITED < polygons.size())
-			polygons[CURRENT_POLYGON_EDITED].add(Vector2(xF, yF));
+			polygons[CURRENT_POLYGON_EDITED]->add(Vector2(xF, yF));
 		else if (WINDOW_OR_POLYGON_EDITED == 2 && CURRENT_POLYGON_EDITED >= 0 && CURRENT_POLYGON_EDITED < windows.size())
-			windows[CURRENT_POLYGON_EDITED].add(Vector2(xF, yF));
+			windows[CURRENT_POLYGON_EDITED]->add(Vector2(xF, yF));
 	}
 
-
-	/*
-	if (button == GLUT_RIGHT_BUTTON)
-		return;
-
-	float xF = (float)x / ((float)WINDOW_WIDTH / 2.0) + (-1.0f);
-	float yF = - ((float)y / ((float)WINDOW_HEIGHT / 2.0) + (-1.0f));
-
-	if (state == 0)
-		pol.add(Vector2(xF, yF));
-	else if (state == 1)
-		win.add(Vector2(xF, yF));
-	*/
+	else if (button == GLUT_MIDDLE_BUTTON)
+	{
+		float distance = 1000.0;
+		if (WINDOW_OR_POLYGON_EDITED == 1 && CURRENT_POLYGON_EDITED >= 0 && CURRENT_POLYGON_EDITED < polygons.size())
+		{
+			unsigned int size = polygons[CURRENT_POLYGON_EDITED]->getNbVertices();
+			for (unsigned int i = 0; i < size; ++i)
+			{
+				Vector2 currentPoint = polygons[CURRENT_POLYGON_EDITED]->getPointAt(i);
+				float currentDistance = currentPoint.distance(Vector2(xF, yF));
+				if (currentDistance < distance)
+				{
+					distance = currentDistance;
+					VECTOR_EDITED = currentPoint;
+				}
+			}
+		}
+		else if (WINDOW_OR_POLYGON_EDITED == 2 && CURRENT_POLYGON_EDITED >= 0 && CURRENT_POLYGON_EDITED < windows.size())
+		{
+			unsigned int size = windows[CURRENT_POLYGON_EDITED]->getNbVertices();
+			for (unsigned int i = 0; i < size; ++i)
+			{
+				Vector2 currentPoint = windows[CURRENT_POLYGON_EDITED]->getPointAt(i);
+				float currentDistance = currentPoint.distance(Vector2(xF, yF));
+				if (currentDistance < distance)
+				{
+					distance = currentDistance;
+					VECTOR_EDITED = currentPoint;
+				}
+			}
+		}
+	}
 
 	glutPostRedisplay();
 }
@@ -122,7 +138,7 @@ void selectPolygon(int selection)
 	{
 		case 11:
 			addPolygonItem(1, polygons.size());
-			polygons.push_back(Polygon());
+			polygons.push_back(new Polygon());
 
 			WINDOW_OR_POLYGON_EDITED = 1;
 			CURRENT_POLYGON_EDITED = polygons.size() - 1;
@@ -137,7 +153,7 @@ void selectWindow(int selection)
 	{
 		case 21:
 			addPolygonItem(2, windows.size());
-			windows.push_back(Polygon());
+			windows.push_back(new Polygon());
 	
 			WINDOW_OR_POLYGON_EDITED = 2;
 			CURRENT_POLYGON_EDITED = windows.size() - 1;
@@ -237,33 +253,33 @@ void setColor(int selection)
 	{
 		case 1:											// Blue
 			if (win_pol_edited == 1)
-				polygons[polygon_selected].setColor(0.0f, 0.0f, 1.0f);
+				polygons[polygon_selected]->setColor(0.0f, 0.0f, 1.0f);
 			else
-				windows[polygon_selected].setColor(0.0f, 0.0f, 1.0f);
+				windows[polygon_selected]->setColor(0.0f, 0.0f, 1.0f);
 			break;
 		case 2:											// Green
 			if (win_pol_edited == 1)
-				polygons[polygon_selected].setColor(0.0f, 1.0f, 0.0f);
+				polygons[polygon_selected]->setColor(0.0f, 1.0f, 0.0f);
 			else
-				windows[polygon_selected].setColor(0.0f, 1.0f, 0.0f);
+				windows[polygon_selected]->setColor(0.0f, 1.0f, 0.0f);
 			break;
 		case 3:											// Red
 			if (win_pol_edited == 1)
-				polygons[polygon_selected].setColor(1.0f, 0.0f, 0.0f);
+				polygons[polygon_selected]->setColor(1.0f, 0.0f, 0.0f);
 			else
-				windows[polygon_selected].setColor(1.0f, 0.0f, 0.0f);
+				windows[polygon_selected]->setColor(1.0f, 0.0f, 0.0f);
 			break;
 		case 4:											// Yellow
 			if (win_pol_edited == 1)
-				polygons[polygon_selected].setColor(1.0f, 1.0f, 1.0f);
+				polygons[polygon_selected]->setColor(1.0f, 1.0f, 1.0f);
 			else
-				windows[polygon_selected].setColor(1.0f, 1.0f, 1.0f);
+				windows[polygon_selected]->setColor(1.0f, 1.0f, 1.0f);
 			break;
 		case 5:											// White
 			if (win_pol_edited == 1)
-				polygons[polygon_selected].setColor(1.0f, 1.0f, 0.0f);
+				polygons[polygon_selected]->setColor(1.0f, 1.0f, 0.0f);
 			else
-				windows[polygon_selected].setColor(1.0f, 1.0f, 0.0f);
+				windows[polygon_selected]->setColor(1.0f, 1.0f, 0.0f);
 			break;
 	}
 

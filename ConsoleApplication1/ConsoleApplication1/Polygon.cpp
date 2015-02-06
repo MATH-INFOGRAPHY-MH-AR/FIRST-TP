@@ -6,31 +6,21 @@ Auteur:								Alexandre Rivet / Maxime Hélaine
 */
 #include "Polygon.h"
 
-Polygon::Polygon() : mRed(1.0), mGreen(1.0), mBlue(1.0)
+Polygon::Polygon()
 {
-	/*
 	mColor = new float[3];
 	mColor[0] = 1.0f;
 	mColor[1] = 1.0f;
 	mColor[2] = 1.0f;
-	*/
-	std::cout << "Constructeur par défaut" << std::endl;
-	// mRed = 1.0;
-	// mGreen = 1.0;
-	// mBlue = 1.0;
 }
 
 Polygon::Polygon(const std::vector<Vector2> points)
 {
 	mVectorList = points;
-	
-	/*mColor = new float[3];
+	mColor = new float[3];
 	mColor[0] = 1.0f;
 	mColor[1] = 1.0f;
-	mColor[2] = 1.0f;*/
-	// mRed = 1.0;
-	// mGreen = 1.0;
-	// mBlue = 1.0;
+	mColor[2] = 1.0f;
 }
 
 Polygon::Polygon(const Polygon& p)
@@ -61,13 +51,10 @@ float* Polygon::getColor() const
 
 void Polygon::setColor(float r, float g, float b)
 {
-	std::cout << "COLOR UPDATED" << std::endl;
-	/*mColor[0] = r;
+	mColor[0] = r;
 	mColor[1] = g;
-	mColor[2] = b;*/
-	mRed = r;
-	mGreen = g;
-	mBlue = b;
+	mColor[2] = b;
+
 }
 
 std::ostream& operator << (std::ostream& os, const Polygon& pol)
@@ -210,8 +197,7 @@ Polygon Polygon::polygonWindowed(Polygon& window) const
 
 void Polygon::draw() const
 {
-	std::cout << mRed << " " << mGreen << " " << mBlue << std::endl;
-	glColor3f(mRed, mGreen, mBlue);
+	glColor3f(mColor[0], mColor[1], mColor[2]);
 
 	if (mVectorList.size() == 1)
 		glBegin(GL_POINTS);

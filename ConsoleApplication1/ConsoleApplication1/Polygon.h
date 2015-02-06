@@ -49,10 +49,6 @@ public:
 private:
 	std::vector<Vector2> mVectorList;
 	float* mColor;
-
-	float mRed;
-	float mGreen;
-	float mBlue;
 };
 
 bool intersection(Vector2& sA, Vector2& sB, Vector2& dA, Vector2& dB, Vector2& inter);
