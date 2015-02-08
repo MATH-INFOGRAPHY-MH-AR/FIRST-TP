@@ -220,7 +220,11 @@ void initMenu()
 // // Fonction appelée pour ouvrir le menu principal
 void select(int selection)
 {
-	std::cout << selection;
+	switch (selection)
+	{
+		case 5:
+			exit(0);
+	}
 }
 
 // Fonction appelée pour ouvrir le menu des polygons
@@ -268,7 +272,16 @@ void selectFillMode(int selection)
 // Fonction appelée pour choisir le mode de fenêtrage
 void selectWindowMode(int selection)
 {
-
+	switch (selection)
+	{
+		case 41:
+			SHOW_HIDE_OUTPUT_POLYGONS = true;
+			break;
+		case 42:
+			SHOW_HIDE_OUTPUT_POLYGONS = false;
+			break;
+	}
+	glutPostRedisplay();
 }
 
 // Fonction appelée lors de la sélection d'un polygone
@@ -403,4 +416,29 @@ void setColor(int selection)
 	}
 
 	glutPostRedisplay();
+}
+
+void calcAllPolygonWindowed()
+{
+	outputPolygons.clear();
+
+	unsigned int nbPolygons = polygons.size();
+	unsigned int nbWindows = windows.size();
+
+	Polygon output;
+	for (unsigned int i = 0; i < nbPolygons; ++i)
+	{
+		Polygon* p = polygons[i];
+		for (unsigned int j = 0; j < nbWindows; ++j)
+		{
+			Polygon* w = windows[j];
+			
+			if (j == 0)
+				output = Polygon(*p);
+
+			output = output.polygonWindowed(Polygon(*w));
+		}
+		outputPolygons.push_back(new Polygon(output));		
+	}
+
 }

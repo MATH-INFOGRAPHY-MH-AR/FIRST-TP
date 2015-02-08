@@ -31,7 +31,6 @@ void display()
 		polygons[i]->draw();
 		polygons[i]->fill();
 	}
-		
 
 	// Dessin des fenêtres
 	for (unsigned int i = 0; i < windows.size(); ++i)
@@ -39,6 +38,17 @@ void display()
 		windows[i]->draw();
 		windows[i]->fill();
 	}
+
+	if (SHOW_HIDE_OUTPUT_POLYGONS)
+	{
+		// Calcul du fenêtrage
+		calcAllPolygonWindowed();
+		// Dessin du résultat de fenêtrage
+		for (unsigned int i = 0; i < outputPolygons.size(); ++i)
+		{
+			outputPolygons[i]->draw();
+		}
+	}	
 
 	// Dessin du carré d'édition
 	if (WINDOW_OR_POLYGON_EDITED != -1)
@@ -60,12 +70,6 @@ void display()
 
 	glFlush();
 }
-
-void myInit()
-{
-
-}
-
 
 int main(int argc, char** argv)
 {

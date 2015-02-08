@@ -20,4 +20,5 @@ void editPolygon(int selection);
 void addPolygonItem(int parent, int index);
 void setColor(int selection);
 
+void calcAllPolygonWindowed();
 #endif
