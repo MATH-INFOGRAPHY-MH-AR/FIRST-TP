@@ -8,10 +8,11 @@
 
 extern std::vector<Polygon*> polygons;
 extern std::vector<Polygon*> windows;
-extern Vector2 VECTOR_EDITED;
 
+extern bool MIDDLE_BUTTON_PRESSED;
 extern int WINDOW_OR_POLYGON_EDITED;
 extern int CURRENT_POLYGON_EDITED;
+extern int CURRENT_VERTEX_EDITED;
 
 extern int state;
 

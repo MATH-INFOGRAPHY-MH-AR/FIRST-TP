@@ -54,7 +54,6 @@ void Polygon::setColor(float r, float g, float b)
 	mColor[0] = r;
 	mColor[1] = g;
 	mColor[2] = b;
-
 }
 
 std::ostream& operator << (std::ostream& os, const Polygon& pol)
@@ -67,10 +66,14 @@ std::ostream& operator << (std::ostream& os, const Polygon& pol)
 	return os;
 }
 
-
 Vector2& Polygon::getPointAt(const int i)
 {
 	return mVectorList[i];
+}
+
+void Polygon::insert(int index, const Vector2& v)
+{
+	mVectorList.insert(mVectorList.begin() + index, v);
 }
 
 void Polygon::add(const Vector2& v)
@@ -207,7 +210,7 @@ void Polygon::draw() const
 		glBegin(GL_LINE_LOOP);
 
 	Vector2 v;
-	for (int i = 0; i < mVectorList.size(); i++)
+	for (unsigned int i = 0; i < mVectorList.size(); i++)
 	{
 		v = mVectorList[i];
 		glVertex2f(v.getX(), v.getY());
@@ -235,6 +238,78 @@ void Polygon::removeDuplicateVertices()
 void Polygon::reset()
 {
 	mVectorList.clear();
+}
+
+bool Polygon::isInclude(Vector2& A)
+{
+	if (mVectorList.size() < 3)
+		return false;
+
+	Vector2 vector_for_intersection = Vector2(1, 1);
+	int nbIntersections = 0;
+	for (unsigned int i = 0; i < mVectorList.size() - 1; ++i)
+	{
+		if (intersectionBetweenSegments(A, vector_for_intersection, mVectorList[i], mVectorList[i + 1]))
+		{
+			nbIntersections++;
+		}
+	}
+
+	if (intersectionBetweenSegments(A, vector_for_intersection, mVectorList[mVectorList.size() - 1], mVectorList[0]))
+		nbIntersections++;
+
+	return (nbIntersections % 2 == 1) ? true : false;
+
+}
+
+void Polygon::computeFillArea()
+{
+	mAreaFilled.clear();
+	if (mVectorList.size() < 3)
+		return;
+
+	// Calcul du rectangle englobant
+	float xmin = 1, ymin = 1, xmax = -1, ymax = -1;
+	Vector2 tmp;
+	for (unsigned int i = 0; i < mVectorList.size(); ++i)
+	{
+		tmp = mVectorList[i];
+		if (tmp.getX() < xmin)
+			xmin = tmp.getX();
+
+		if (tmp.getY() < ymin)
+			ymin = tmp.getY();
+
+		if (tmp.getX() > xmax)
+			xmax = tmp.getX();
+
+		if (tmp.getY() > ymax)
+			ymax = tmp.getY();
+	}
+
+	for (float x = xmin; x < xmax; x += 0.004)
+	{
+		for (float y = ymax; y > ymin; y -= 0.004)
+		{
+			Vector2 tmp = Vector2(x, y);
+			if (isInclude(tmp))
+			{
+				mAreaFilled.push_back(tmp);
+			}
+		}
+	}
+}
+
+void Polygon::fill()
+{
+	glColor3f(mColor[0], mColor[1], mColor[2]);
+	glBegin(GL_POINTS);
+
+	for (unsigned int i = 0; i < mAreaFilled.size(); ++i)	
+		glVertex2f(mAreaFilled[i].getX(), mAreaFilled[i].getY());
+
+	glEnd();
+
 }
 
 bool intersection(Vector2& sA, Vector2& sB, Vector2& dA, Vector2& dB, Vector2& inter)
@@ -288,6 +363,54 @@ bool intersection(Vector2& sA, Vector2& sB, Vector2& dA, Vector2& dB, Vector2& i
 	{
 		return false;
 	}
+}
+
+bool intersectionBetweenSegments(Vector2& sA, Vector2& sB, Vector2& dA, Vector2& dB)
+{
+	// Equation paramétrique d'une droite à partir de deux points
+	// P(t) = sA + (sB - sA)t
+	// Q(s) = dA + (dB - dA)s
+	// ^ * X = b 
+
+	// Définition de la matrice 2x2 -> ^
+	float matrix[2][2];
+	matrix[0][0] = sB.getX() - sA.getX();
+	matrix[0][1] = dA.getX() - dB.getX();
+	matrix[1][0] = sB.getY() - sA.getY();
+	matrix[1][1] = dA.getY() - dB.getY();
+
+	// Calcul du déterminant
+	float determinant = (sB.getX() - sA.getX()) * (dA.getY() - dB.getY()) - (sB.getY() - sA.getY()) * (dA.getX() - dB.getX());
+
+	// On quitte si le déterminant est nul
+	if (determinant == 0.0f)
+		return false;
+
+	// On calcul l'inverse de la matrice -> ^-1
+	float invmatrix[2][2];
+	invmatrix[0][0] = matrix[1][1] * (1 / determinant);
+	invmatrix[0][1] = -matrix[0][1] * (1 / determinant);
+	invmatrix[1][0] = -matrix[1][0] * (1 / determinant);
+	invmatrix[1][1] = matrix[0][0] * (1 / determinant);
+
+	// Définition du b
+	float bMatrix[2];
+	bMatrix[0] = dA.getX() - sA.getX();
+	bMatrix[1] = dA.getY() - sA.getY();
+
+	// Résultat de la multiplication -> ^-1 * b
+	float X[2];
+	// correspond à t
+	X[0] = invmatrix[0][0] * bMatrix[0] + invmatrix[0][1] * bMatrix[1];
+
+	// correspond à s
+	X[1] = invmatrix[1][0] * bMatrix[0] + invmatrix[1][1] * bMatrix[1];
+
+	// t et s compris entre 0 et 1 du coup le point d'intersection est sur les deux segments
+	if ((X[0] >= 0.0f && X[0] <= 1.0f) && (X[1] >= 0.0f && X[1] <= 1.0f))
+		return true;
+	else
+		return false;
 }
 
 bool visible(Vector2& S, Vector2& A, Vector2& B)

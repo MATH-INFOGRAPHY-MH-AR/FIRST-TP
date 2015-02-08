@@ -12,15 +12,34 @@ void key(unsigned char k, int x, int y)
 {
 	switch (k)
 	{
-		case 'p':					// Tracé du polygone
-			state = 0;
-			break;
-		case 'f':					// Tracé de la fenêtre
-			state = 1;
-			break;
-		case 'a':
-			break;
-		case 'r':
+		case 27:
+			WINDOW_OR_POLYGON_EDITED = -1;
+			CURRENT_POLYGON_EDITED = -1;
+			CURRENT_VERTEX_EDITED = 0;
+
+		case 127:
+			if (WINDOW_OR_POLYGON_EDITED == 1 && CURRENT_POLYGON_EDITED >= 0 && CURRENT_POLYGON_EDITED < polygons.size())
+			{
+				if (CURRENT_VERTEX_EDITED >= 1)
+				{
+					polygons[CURRENT_POLYGON_EDITED]->remove(CURRENT_VERTEX_EDITED - 1);
+					polygons[CURRENT_POLYGON_EDITED]->computeFillArea();
+					
+					if (CURRENT_VERTEX_EDITED > polygons[CURRENT_POLYGON_EDITED]->getNbVertices())
+						CURRENT_VERTEX_EDITED = polygons[CURRENT_POLYGON_EDITED]->getNbVertices();
+				}
+			}
+			else if (WINDOW_OR_POLYGON_EDITED == 2 && CURRENT_POLYGON_EDITED >= 0 && CURRENT_POLYGON_EDITED < windows.size())
+			{
+				if (CURRENT_VERTEX_EDITED >= 1)
+				{
+					windows[CURRENT_POLYGON_EDITED]->remove(CURRENT_VERTEX_EDITED - 1);
+					windows[CURRENT_POLYGON_EDITED]->computeFillArea();
+
+					if (CURRENT_VERTEX_EDITED > polygons[CURRENT_POLYGON_EDITED]->getNbVertices())
+						CURRENT_VERTEX_EDITED = polygons[CURRENT_POLYGON_EDITED]->getNbVertices();
+				}
+			}
 			break;
 	}
 
@@ -38,7 +57,41 @@ void mouse(int button, int state, int x, int y)
 
 void motion(int x, int y)
 {
-	std::cout << "MOVING " << x << "," << y << std::endl;
+	float xF = (float)x / ((float)WINDOW_WIDTH / 2.0) + (-1.0f);
+	float yF = -((float)y / ((float)WINDOW_HEIGHT / 2.0) + (-1.0f));
+
+	// Drag sur le clic molette
+	if (MIDDLE_BUTTON_PRESSED)
+	{
+		if (WINDOW_OR_POLYGON_EDITED == 1 && CURRENT_POLYGON_EDITED >= 0 && CURRENT_POLYGON_EDITED < polygons.size())
+		{
+			if (CURRENT_VERTEX_EDITED >= 0 && CURRENT_VERTEX_EDITED <= polygons[CURRENT_POLYGON_EDITED]->getNbVertices() )
+			{
+				Vector2 currentPoint = polygons[CURRENT_POLYGON_EDITED]->getPointAt(CURRENT_VERTEX_EDITED - 1);
+				float distance = currentPoint.distance(Vector2(xF, yF));
+				if (distance < 0.04)
+				{
+					polygons[CURRENT_POLYGON_EDITED]->getPointAt(CURRENT_VERTEX_EDITED - 1).setX(xF);
+					polygons[CURRENT_POLYGON_EDITED]->getPointAt(CURRENT_VERTEX_EDITED - 1).setY(yF);
+				}
+			} 
+		}
+		else if (WINDOW_OR_POLYGON_EDITED == 2 && CURRENT_POLYGON_EDITED >= 0 && CURRENT_POLYGON_EDITED < windows.size())
+		{
+			if (CURRENT_VERTEX_EDITED >= 0 && CURRENT_VERTEX_EDITED <= windows[CURRENT_POLYGON_EDITED]->getNbVertices())
+			{
+				Vector2 currentPoint = windows[CURRENT_POLYGON_EDITED]->getPointAt(CURRENT_VERTEX_EDITED - 1);
+				float distance = currentPoint.distance(Vector2(xF, yF));
+				if (distance < 0.04)
+				{
+					windows[CURRENT_POLYGON_EDITED]->getPointAt(CURRENT_VERTEX_EDITED - 1).setX(xF);
+					windows[CURRENT_POLYGON_EDITED]->getPointAt(CURRENT_VERTEX_EDITED - 1).setY(yF);
+				}
+			}
+		}
+	}
+
+	glutPostRedisplay();
 }
 
 void mouseDown(int button, int x, int y)
@@ -46,16 +99,36 @@ void mouseDown(int button, int x, int y)
 	float xF = (float)x / ((float)WINDOW_WIDTH / 2.0) + (-1.0f);
 	float yF = -((float)y / ((float)WINDOW_HEIGHT / 2.0) + (-1.0f));
 
+	// Clic gauche => Ajout d'un nouveau point dans le polygone en cours (soit à la fin soit insertion à l'espace en cours
 	if (button == GLUT_LEFT_BUTTON)
 	{
 		if (WINDOW_OR_POLYGON_EDITED == 1 && CURRENT_POLYGON_EDITED >= 0 && CURRENT_POLYGON_EDITED < polygons.size())
-			polygons[CURRENT_POLYGON_EDITED]->add(Vector2(xF, yF));
+		{
+			if (CURRENT_VERTEX_EDITED == polygons[CURRENT_POLYGON_EDITED]->getNbVertices())
+				polygons[CURRENT_POLYGON_EDITED]->add(Vector2(xF, yF));
+			else
+				polygons[CURRENT_POLYGON_EDITED]->insert(CURRENT_VERTEX_EDITED, Vector2(xF, yF));			
+			polygons[CURRENT_POLYGON_EDITED]->computeFillArea();
+		}
+			
 		else if (WINDOW_OR_POLYGON_EDITED == 2 && CURRENT_POLYGON_EDITED >= 0 && CURRENT_POLYGON_EDITED < windows.size())
-			windows[CURRENT_POLYGON_EDITED]->add(Vector2(xF, yF));
+		{
+			if (CURRENT_VERTEX_EDITED == windows[CURRENT_POLYGON_EDITED]->getNbVertices())
+				windows[CURRENT_POLYGON_EDITED]->add(Vector2(xF, yF));
+			else
+				windows[CURRENT_POLYGON_EDITED]->insert(CURRENT_VERTEX_EDITED, Vector2(xF, yF));
+			windows[CURRENT_POLYGON_EDITED]->computeFillArea();
+		}
+		CURRENT_VERTEX_EDITED++;
 	}
 
+	// Clic molette:
+	// - Début de drag
+	// - Calcul du point le plus proche pour savoir quel point on édite
 	else if (button == GLUT_MIDDLE_BUTTON)
 	{
+		MIDDLE_BUTTON_PRESSED = true;
+
 		float distance = 1000.0;
 		if (WINDOW_OR_POLYGON_EDITED == 1 && CURRENT_POLYGON_EDITED >= 0 && CURRENT_POLYGON_EDITED < polygons.size())
 		{
@@ -67,7 +140,7 @@ void mouseDown(int button, int x, int y)
 				if (currentDistance < distance)
 				{
 					distance = currentDistance;
-					VECTOR_EDITED = currentPoint;
+					CURRENT_VERTEX_EDITED = (i + 1);
 				}
 			}
 		}
@@ -81,7 +154,7 @@ void mouseDown(int button, int x, int y)
 				if (currentDistance < distance)
 				{
 					distance = currentDistance;
-					VECTOR_EDITED = currentPoint;
+					CURRENT_VERTEX_EDITED = (i + 1);
 				}
 			}
 		}
@@ -92,7 +165,21 @@ void mouseDown(int button, int x, int y)
 
 void mouseUp(int button, int x, int y)
 {
-	
+	// Fin de drag qui permet de mettre à jour le remplissage
+	if (button == GLUT_MIDDLE_BUTTON)
+	{
+		MIDDLE_BUTTON_PRESSED = false;
+		if (WINDOW_OR_POLYGON_EDITED == 1 && CURRENT_POLYGON_EDITED >= 0 && CURRENT_POLYGON_EDITED < polygons.size())
+		{
+			polygons[CURRENT_POLYGON_EDITED]->computeFillArea();
+		}
+		else if (WINDOW_OR_POLYGON_EDITED == 2 && CURRENT_POLYGON_EDITED >= 0 && CURRENT_POLYGON_EDITED < windows.size())
+		{
+			windows[CURRENT_POLYGON_EDITED]->computeFillArea();
+		}
+	}
+
+	glutPostRedisplay();
 }
 
 
@@ -137,11 +224,13 @@ void selectPolygon(int selection)
 	switch (selection)
 	{
 		case 11:
-			addPolygonItem(1, polygons.size());
-			polygons.push_back(new Polygon());
+			addPolygonItem(1, polygons.size());		// Met à jour l'UI
+			polygons.push_back(new Polygon());		// Ajoute dans la liste un nouveau polygone
 
+			// Mise à jour des variables globales
 			WINDOW_OR_POLYGON_EDITED = 1;
 			CURRENT_POLYGON_EDITED = polygons.size() - 1;
+			CURRENT_VERTEX_EDITED = 0;
 
 			break;
 	}
@@ -152,12 +241,14 @@ void selectWindow(int selection)
 	switch (selection)
 	{
 		case 21:
-			addPolygonItem(2, windows.size());
-			windows.push_back(new Polygon());
+			addPolygonItem(2, windows.size());		// Met à jour l'UI
+			windows.push_back(new Polygon());		// Ajoute dans la liste un nouveau polygone
 	
+			// Mise à jour des variables globales
 			WINDOW_OR_POLYGON_EDITED = 2;
 			CURRENT_POLYGON_EDITED = windows.size() - 1;
-	
+			CURRENT_VERTEX_EDITED = 0;
+
 			break;
 	}
 }
@@ -184,6 +275,13 @@ void editPolygon(int selection)
 		case 2:					
 			WINDOW_OR_POLYGON_EDITED = win_pol_edited;
 			CURRENT_POLYGON_EDITED = polygon_selected;
+
+			if (WINDOW_OR_POLYGON_EDITED == 1)
+				CURRENT_VERTEX_EDITED = polygons[CURRENT_POLYGON_EDITED]->getNbVertices();
+			else if (WINDOW_OR_POLYGON_EDITED == 2)
+				CURRENT_VERTEX_EDITED = windows[CURRENT_POLYGON_EDITED]->getNbVertices();
+
+			glutPostRedisplay();
 			break;
 		case 3:	
 			// Supprime les menu items
@@ -226,6 +324,7 @@ void addPolygonItem(int parent, int index)
 	int base = parent * 100 + (20 + index * 10) + 1;
 	int color_base = base * 10 + 1;
 
+	// Crée le menu de couleur
 	int color_tmp = glutCreateMenu(setColor);
 	glutAddMenuEntry("Blue", color_base++);
 	glutAddMenuEntry("Green", color_base++);
@@ -233,11 +332,13 @@ void addPolygonItem(int parent, int index)
 	glutAddMenuEntry("White", color_base++);
 	glutAddMenuEntry("Yellow", color_base++);
 
+	// Crée le sous menu du polygone en cours
 	int polygon_tmp = glutCreateMenu(editPolygon);
 	glutAddSubMenu("Color", color_tmp);
 	glutAddMenuEntry("Edit", ++base);
 	glutAddMenuEntry("Remove", ++base);
 
+	// Ajout le menu au polygone
 	glutSetMenu(parent);
 	glutAddSubMenu((prefix + std::to_string(index + 1)).c_str(), polygon_tmp);
 }

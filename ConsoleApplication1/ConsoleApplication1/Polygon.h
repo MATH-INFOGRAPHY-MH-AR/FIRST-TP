@@ -34,6 +34,7 @@ public:
 
 	Vector2& getPointAt(const int);
 	void add(const Vector2&);
+	void insert(int, const Vector2&);
 	void remove(const int);
 	int getNbVertices() const;
 	void removeDuplicateVertices();
@@ -44,14 +45,20 @@ public:
 
 	Polygon polygonWindowed(Polygon& window) const;
 
+	bool isInclude(Vector2&);
+	void computeFillArea();
+	void fill();
+
 	void draw() const;
 
 private:
 	std::vector<Vector2> mVectorList;
+	std::vector<Vector2> mAreaFilled;
 	float* mColor;
 };
 
 bool intersection(Vector2& sA, Vector2& sB, Vector2& dA, Vector2& dB, Vector2& inter);
+bool intersectionBetweenSegments(Vector2& sA, Vector2& sB, Vector2& dA, Vector2& dB);
 bool visible(Vector2& S,  Vector2& A, Vector2& B);
 
 #endif
