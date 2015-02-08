@@ -7,17 +7,17 @@
 #include "Vector2.h"
 #include "FenetreRemplissageInterface.h"
 
-
+// Fonction appelée par le clavier
 void key(unsigned char k, int x, int y)
 {
 	switch (k)
 	{
-		case 27:
+		case 27:											// ECHAP => Quitte l'édition du polygone en cours
 			WINDOW_OR_POLYGON_EDITED = -1;
 			CURRENT_POLYGON_EDITED = -1;
 			CURRENT_VERTEX_EDITED = 0;
 
-		case 127:
+		case 127:											// Supprime le vertex sélectionné en cours 
 			if (WINDOW_OR_POLYGON_EDITED == 1 && CURRENT_POLYGON_EDITED >= 0 && CURRENT_POLYGON_EDITED < polygons.size())
 			{
 				if (CURRENT_VERTEX_EDITED >= 1)
@@ -46,6 +46,7 @@ void key(unsigned char k, int x, int y)
 	glutPostRedisplay();
 }
 
+// Fonction appelée pour toute action de la souris (UP & DOWN)
 void mouse(int button, int state, int x, int y)
 {
 	if (state == GLUT_DOWN)
@@ -55,10 +56,11 @@ void mouse(int button, int state, int x, int y)
 		mouseUp(button, x, y);
 }
 
+// Fonction appelée lorsque l'on bouge la souris
 void motion(int x, int y)
 {
-	float xF = (float)x / ((float)WINDOW_WIDTH / 2.0) + (-1.0f);
-	float yF = -((float)y / ((float)WINDOW_HEIGHT / 2.0) + (-1.0f));
+	float xF = x;
+	float yF = y;
 
 	// Drag sur le clic molette
 	if (MIDDLE_BUTTON_PRESSED)
@@ -69,7 +71,7 @@ void motion(int x, int y)
 			{
 				Vector2 currentPoint = polygons[CURRENT_POLYGON_EDITED]->getPointAt(CURRENT_VERTEX_EDITED - 1);
 				float distance = currentPoint.distance(Vector2(xF, yF));
-				if (distance < 0.04)
+				if (distance < 10)
 				{
 					polygons[CURRENT_POLYGON_EDITED]->getPointAt(CURRENT_VERTEX_EDITED - 1).setX(xF);
 					polygons[CURRENT_POLYGON_EDITED]->getPointAt(CURRENT_VERTEX_EDITED - 1).setY(yF);
@@ -82,7 +84,7 @@ void motion(int x, int y)
 			{
 				Vector2 currentPoint = windows[CURRENT_POLYGON_EDITED]->getPointAt(CURRENT_VERTEX_EDITED - 1);
 				float distance = currentPoint.distance(Vector2(xF, yF));
-				if (distance < 0.04)
+				if (distance < 10)
 				{
 					windows[CURRENT_POLYGON_EDITED]->getPointAt(CURRENT_VERTEX_EDITED - 1).setX(xF);
 					windows[CURRENT_POLYGON_EDITED]->getPointAt(CURRENT_VERTEX_EDITED - 1).setY(yF);
@@ -94,10 +96,11 @@ void motion(int x, int y)
 	glutPostRedisplay();
 }
 
+// Fonction appelée lorsque l'on enfonce un bouton de la souris
 void mouseDown(int button, int x, int y)
 {
-	float xF = (float)x / ((float)WINDOW_WIDTH / 2.0) + (-1.0f);
-	float yF = -((float)y / ((float)WINDOW_HEIGHT / 2.0) + (-1.0f));
+	float xF = x;
+	float yF = y;
 
 	// Clic gauche => Ajout d'un nouveau point dans le polygone en cours (soit à la fin soit insertion à l'espace en cours
 	if (button == GLUT_LEFT_BUTTON)
@@ -163,6 +166,7 @@ void mouseDown(int button, int x, int y)
 	glutPostRedisplay();
 }
 
+// Fonction appelée lorsque l'on relâche un bouton de la souris
 void mouseUp(int button, int x, int y)
 {
 	// Fin de drag qui permet de mettre à jour le remplissage
@@ -182,8 +186,7 @@ void mouseUp(int button, int x, int y)
 	glutPostRedisplay();
 }
 
-
-
+// Initialisation du menu principal
 void initMenu()
 {
 	// Menu Polygone
@@ -195,12 +198,12 @@ void initMenu()
 	glutAddMenuEntry("New", 21);
 
 	// Menu Choix du Remplissage
-	int fillMod = glutCreateMenu(selectFillMod);
+	int fillMod = glutCreateMenu(selectFillMode);
 	glutAddMenuEntry("Method 1", 31);
 	glutAddMenuEntry("Method 2", 32);
 
 	// Menu Choix du Fenetrage
-	int windowMod = glutCreateMenu(selectWindowMod);
+	int windowMod = glutCreateMenu(selectWindowMode);
 	glutAddMenuEntry("Show", 41);
 	glutAddMenuEntry("Hide", 42);
 
@@ -214,11 +217,13 @@ void initMenu()
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
 
+// // Fonction appelée pour ouvrir le menu principal
 void select(int selection)
 {
 	std::cout << selection;
 }
 
+// Fonction appelée pour ouvrir le menu des polygons
 void selectPolygon(int selection)
 {
 	switch (selection)
@@ -236,6 +241,7 @@ void selectPolygon(int selection)
 	}
 }
 
+// Fonction appelée pour ouvrir le menu des windows
 void selectWindow(int selection)
 {
 	switch (selection)
@@ -253,16 +259,19 @@ void selectWindow(int selection)
 	}
 }
 
-void selectFillMod(int selection)
+// Fonction appelée pour choisir le mode de remplissage
+void selectFillMode(int selection)
 {
 
 }
 
-void selectWindowMod(int selection)
+// Fonction appelée pour choisir le mode de fenêtrage
+void selectWindowMode(int selection)
 {
 
 }
 
+// Fonction appelée lors de la sélection d'un polygone
 void editPolygon(int selection)
 {
 	int win_pol_edited = selection / 100;
@@ -272,7 +281,7 @@ void editPolygon(int selection)
 
 	switch (edition_selected)
 	{
-		case 2:					
+		case 2:													// Edition				
 			WINDOW_OR_POLYGON_EDITED = win_pol_edited;
 			CURRENT_POLYGON_EDITED = polygon_selected;
 
@@ -283,8 +292,7 @@ void editPolygon(int selection)
 
 			glutPostRedisplay();
 			break;
-		case 3:	
-			// Supprime les menu items
+		case 3:													// Suppression
 			switch (win_pol_edited)
 			{
 			case 1:
@@ -313,11 +321,20 @@ void editPolygon(int selection)
 				break;
 			}
 			glutPostRedisplay();
+
+			// Remise à 0 des états des variables si on supprime le polygone qui est en cours d'édition
+			if (win_pol_edited == WINDOW_OR_POLYGON_EDITED && polygon_selected == CURRENT_POLYGON_EDITED)
+			{
+				WINDOW_OR_POLYGON_EDITED = -1;
+				CURRENT_POLYGON_EDITED = -1;
+				CURRENT_VERTEX_EDITED = 0;
+			}			
 			break;
 	}
 
 }
 
+// Ajoute un menu item au menu des polygones ou windows
 void addPolygonItem(int parent, int index)
 {
 	std::string prefix = (parent == 1) ? "Polygon_" : "Window_"; 
@@ -343,6 +360,7 @@ void addPolygonItem(int parent, int index)
 	glutAddSubMenu((prefix + std::to_string(index + 1)).c_str(), polygon_tmp);
 }
 
+// Fonction appelée pour le choix d'une couleur
 void setColor(int selection)
 {
 	int win_pol_edited = selection / 1000;

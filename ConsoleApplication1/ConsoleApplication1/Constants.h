@@ -14,6 +14,4 @@ extern int WINDOW_OR_POLYGON_EDITED;
 extern int CURRENT_POLYGON_EDITED;
 extern int CURRENT_VERTEX_EDITED;
 
-extern int state;
-
 #endif

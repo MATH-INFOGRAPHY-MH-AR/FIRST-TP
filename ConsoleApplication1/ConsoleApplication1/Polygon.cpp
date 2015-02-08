@@ -269,7 +269,7 @@ void Polygon::computeFillArea()
 		return;
 
 	// Calcul du rectangle englobant
-	float xmin = 1, ymin = 1, xmax = -1, ymax = -1;
+	float xmin = 500, ymin = 500, xmax = 0, ymax = 0;
 	Vector2 tmp;
 	for (unsigned int i = 0; i < mVectorList.size(); ++i)
 	{
@@ -287,9 +287,9 @@ void Polygon::computeFillArea()
 			ymax = tmp.getY();
 	}
 
-	for (float x = xmin; x < xmax; x += 0.004)
+	for (float x = xmin; x < xmax; x += 1)
 	{
-		for (float y = ymax; y > ymin; y -= 0.004)
+		for (float y = ymax; y > ymin; y -= 1)
 		{
 			Vector2 tmp = Vector2(x, y);
 			if (isInclude(tmp))
@@ -302,7 +302,7 @@ void Polygon::computeFillArea()
 
 void Polygon::fill()
 {
-	glColor3f(mColor[0], mColor[1], mColor[2]);
+	glColor4f(mColor[0], mColor[1], mColor[2], 0.6f);
 	glBegin(GL_POINTS);
 
 	for (unsigned int i = 0; i < mAreaFilled.size(); ++i)	
