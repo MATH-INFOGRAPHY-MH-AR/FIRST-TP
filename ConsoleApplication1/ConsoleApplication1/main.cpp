@@ -3,6 +3,7 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
+#include "LCAStruct.h"
 #include "Constants.h"
 #include "Vector2.h"
 #include "Polygon.h"
@@ -73,6 +74,12 @@ void display()
 
 int main(int argc, char** argv)
 {
+	// Test des listes chainées
+	Maillon* head = lcamaillon_new(5, 6, 7);
+	lcamaillon_display(head);
+	lcamaillon_append(&head, 6, 7, 8);
+	lcamaillon_display(head);
+
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGBA | GLUT_ALPHA);
 	glutInitWindowPosition(10, 10);

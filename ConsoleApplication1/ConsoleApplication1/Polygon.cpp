@@ -124,7 +124,7 @@ Polygon Polygon::polygonWindowed(Polygon& window) const
 	if (mVectorList.size() < 3 || window.getPoints().size() < 3)
 	{
 		std::cout << "La fenetre et/ou le polygone doivent posséder au minimum 3 sommets" << std::endl;
-		return Polygon(mVectorList);
+		return Polygon();
 	}
 	
 	std::vector<Vector2> pointListInputPolygon = mVectorList;
@@ -245,7 +245,7 @@ bool Polygon::isInclude(Vector2& A)
 	if (mVectorList.size() < 3)
 		return false;
 
-	Vector2 vector_for_intersection = Vector2(1, 1);
+	Vector2 vector_for_intersection = Vector2(500, 500);
 	int nbIntersections = 0;
 	for (unsigned int i = 0; i < mVectorList.size() - 1; ++i)
 	{
@@ -287,9 +287,9 @@ void Polygon::computeFillArea()
 			ymax = tmp.getY();
 	}
 
-	for (float x = xmin; x < xmax; x += 1)
+	for (float x = xmin; x < xmax; ++x)
 	{
-		for (float y = ymax; y > ymin; y -= 1)
+		for (float y = ymax; y > ymin; --y)
 		{
 			Vector2 tmp = Vector2(x, y);
 			if (isInclude(tmp))
