@@ -26,6 +26,18 @@ void display()
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
+	/*
+	Polygon p;
+	p.add(Vector2(20, 30));
+	p.add(Vector2(70, 10));
+	p.add(Vector2(130, 10));
+	p.add(Vector2(130, 110));
+	p.add(Vector2(70, 70));
+	p.add(Vector2(20, 90));
+	p.computeTemporaryStructure();
+	p.draw();
+	*/
+
 	// Dessin des polygones
 	for (unsigned int i = 0; i < polygons.size(); ++i)
 	{
@@ -74,14 +86,9 @@ void display()
 
 int main(int argc, char** argv)
 {
-	// Test des listes chainées
-	Maillon* head = lcamaillon_new(5, 6, 7);
-	lcamaillon_display(head);
-	lcamaillon_append(&head, 6, 7, 8);
-	lcamaillon_display(head);
 
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGBA | GLUT_ALPHA);
+	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGBA | GLUT_ALPHA | GLUT_MULTISAMPLE);
 	glutInitWindowPosition(10, 10);
 	glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 	glutCreateWindow("Fenetrage et remplissage");
@@ -91,6 +98,9 @@ int main(int argc, char** argv)
 	initMenu();
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glEnable(GLUT_MULTISAMPLE);
+	glEnable(GL_LINE_SMOOTH);
 
 	glutKeyboardFunc(key);
 	glutMouseFunc(mouse);

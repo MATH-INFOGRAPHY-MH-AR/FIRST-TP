@@ -4,6 +4,7 @@
 
 #include "LCAStruct.h"
 
+/*
 Maillon* lcamaillon_new(float ymax, float xmin, float coeffInversed)
 {
 	Maillon* m = (Maillon*)malloc(sizeof(Maillon));
@@ -80,3 +81,4 @@ void lcamaillon_insert_index(Maillon** m, int index, float ymax, float xmin, flo
 	}
 
 }
+*/

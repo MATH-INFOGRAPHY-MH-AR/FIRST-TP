@@ -104,9 +104,13 @@ bool Polygon::isConvex() const
 		prev = mVectorList[i - 1];
 		current = mVectorList[i];
 		next = (i < mVectorList.size() - 1) ? mVectorList[i + 1] : mVectorList[0];
+
 		firstSide = current - prev;
 		nextSide = current - next;
 		angle = firstSide.angleOrientedBetween(nextSide);
+		
+		std::cout << angle << std::endl;
+
 		if (angle > 180)
 			return false;
 	}
@@ -298,6 +302,87 @@ void Polygon::computeFillArea()
 			}
 		}
 	}
+}
+
+void Polygon::computeTemporaryStructure()
+{
+	mTemporaryStructure.clear();
+	if (mVectorList.size() < 3)
+		return;
+
+	// Calcul du rectangle englobant
+	float xmin = 500, ymin = 500, xmax = 0, ymax = 0;
+	Vector2 tmp;
+	for (unsigned int i = 0; i < mVectorList.size(); ++i)
+	{
+		tmp = mVectorList[i];
+		if (tmp.getX() < xmin)
+			xmin = tmp.getX();
+
+		if (tmp.getY() < ymin)
+			ymin = tmp.getY();
+
+		if (tmp.getX() > xmax)
+			xmax = tmp.getX();
+
+		if (tmp.getY() > ymax)
+			ymax = tmp.getY();
+	}
+
+	std::vector<std::list<LCAStruct>> mTemporaryStructure(abs(ymax - ymin) + 2); // Prise en compte des deux bornes
+
+	for (std::vector<Vector2>::iterator it = mVectorList.begin(); it != mVectorList.end() - 1; ++it)
+	{
+		Vector2 current = *it;
+		Vector2 next = *(it + 1);
+
+		if (next.getY() == current.getY())
+			continue;
+
+		int y = std::min(current.getY(), next.getY()) - ymin;		// Pour retomber dans les index du vector
+		float coeff = (next.getX() - current.getX() != 0) ? (next.getY() - current.getY()) / (next.getX() - current.getX()) : 0;
+
+		LCAStruct lca;
+		lca.ymax = std::max(current.getY(), next.getY());
+		lca.xmin = (lca.ymax == current.getY()) ? next.getX() : current.getX();
+		lca.coeffInversed = (coeff != 0) ? 1 / coeff : 0;
+		mTemporaryStructure[y].push_back(lca);
+	}
+
+	// Dernier traitement entre le dernier et le premier point du polygone
+	Vector2 current = mVectorList[mVectorList.size() - 1];
+	Vector2 next = mVectorList[0];
+	if (next.getY() != current.getY())
+	{
+		int y = std::min(current.getY(), next.getY()) - ymin;		// Pour retomber dans les index du vector
+		float coeff = (next.getX() - current.getX() != 0) ? (next.getY() - current.getY()) / (next.getX() - current.getX()) : 0;
+
+		LCAStruct lca;
+		lca.ymax = std::max(current.getY(), next.getY());
+		lca.xmin = (lca.ymax == current.getY()) ? next.getX() : current.getX();
+		lca.coeffInversed = (coeff != 0) ? 1 / coeff : 0;
+		mTemporaryStructure[y].push_back(lca);
+	}	
+
+	// Partie parcours
+	/*std::list<LCAStruct> lca_active;
+	for (std::vector<std::list<LCAStruct>>::iterator it = mTemporaryStructure.begin(); it != mTemporaryStructure.end(); ++it)
+	{
+
+	}*/
+
+	
+	int i = ymin;
+	for (std::vector<std::list<LCAStruct>>::iterator it = mTemporaryStructure.begin(); it != mTemporaryStructure.end(); ++it)
+	{
+		for (std::list<LCAStruct>::iterator jt = (*it).begin(); jt != (*it).end(); ++jt)
+		{
+			std::cout << i << " => " << (*jt).ymax << " | " << (*jt).xmin << " | " << (*jt).coeffInversed << std::endl;
+		}
+		i++;
+	}
+
+
 }
 
 void Polygon::fill()

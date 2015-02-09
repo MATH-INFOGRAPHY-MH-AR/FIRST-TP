@@ -176,6 +176,7 @@ void mouseUp(int button, int x, int y)
 		if (WINDOW_OR_POLYGON_EDITED == 1 && CURRENT_POLYGON_EDITED >= 0 && CURRENT_POLYGON_EDITED < polygons.size())
 		{
 			polygons[CURRENT_POLYGON_EDITED]->computeFillArea();
+			std::cout << polygons[CURRENT_POLYGON_EDITED]->isConvex() << std::endl;
 		}
 		else if (WINDOW_OR_POLYGON_EDITED == 2 && CURRENT_POLYGON_EDITED >= 0 && CURRENT_POLYGON_EDITED < windows.size())
 		{

@@ -12,8 +12,11 @@ Auteur:								Alexandre Rivet / Maxime Hélaine
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <vector>
+#include <list>
+#include <algorithm>
 
 #include "Vector2.h"
+#include "LCAStruct.h"
 
 class Polygon
 {
@@ -46,6 +49,7 @@ public:
 	Polygon polygonWindowed(Polygon& window) const;
 
 	bool isInclude(Vector2&);
+	void computeTemporaryStructure();
 	void computeFillArea();
 	void fill();
 
@@ -54,6 +58,8 @@ public:
 private:
 	std::vector<Vector2> mVectorList;
 	std::vector<Vector2> mAreaFilled;
+	std::vector<std::list<LCAStruct>> mTemporaryStructure;
+
 	float* mColor;
 };
 
