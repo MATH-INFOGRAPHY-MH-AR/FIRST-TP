@@ -4,6 +4,11 @@
 
 #include "LCAStruct.h"
 
+bool compareXMin(const LCAStruct lca_1, const LCAStruct lca_2)
+{
+	return (lca_1.xmin < lca_2.xmin);
+}
+
 /*
 Maillon* lcamaillon_new(float ymax, float xmin, float coeffInversed)
 {

@@ -108,8 +108,6 @@ bool Polygon::isConvex() const
 		firstSide = current - prev;
 		nextSide = current - next;
 		angle = firstSide.angleOrientedBetween(nextSide);
-		
-		std::cout << angle << std::endl;
 
 		if (angle > 180)
 			return false;
@@ -268,7 +266,7 @@ bool Polygon::isInclude(Vector2& A)
 
 void Polygon::computeFillArea()
 {
-	mAreaFilled.clear();
+	mAreaFilledPoints.clear();
 	if (mVectorList.size() < 3)
 		return;
 
@@ -298,7 +296,7 @@ void Polygon::computeFillArea()
 			Vector2 tmp = Vector2(x, y);
 			if (isInclude(tmp))
 			{
-				mAreaFilled.push_back(tmp);
+				mAreaFilledPoints.push_back(tmp);
 			}
 		}
 	}
@@ -306,7 +304,6 @@ void Polygon::computeFillArea()
 
 void Polygon::computeTemporaryStructure()
 {
-	mTemporaryStructure.clear();
 	if (mVectorList.size() < 3)
 		return;
 
@@ -329,7 +326,7 @@ void Polygon::computeTemporaryStructure()
 			ymax = tmp.getY();
 	}
 
-	std::vector<std::list<LCAStruct>> mTemporaryStructure(abs(ymax - ymin) + 2); // Prise en compte des deux bornes
+	std::vector<std::list<LCAStruct>> temporaryStructure(abs(ymax - ymin) + 2); // Prise en compte des deux bornes
 
 	for (std::vector<Vector2>::iterator it = mVectorList.begin(); it != mVectorList.end() - 1; ++it)
 	{
@@ -344,9 +341,12 @@ void Polygon::computeTemporaryStructure()
 
 		LCAStruct lca;
 		lca.ymax = std::max(current.getY(), next.getY());
+		lca.ymin = std::min(current.getY(), next.getY());
+		lca.xmax = (lca.ymin == current.getY()) ? next.getX() : current.getX();
 		lca.xmin = (lca.ymax == current.getY()) ? next.getX() : current.getX();
+		
 		lca.coeffInversed = (coeff != 0) ? 1 / coeff : 0;
-		mTemporaryStructure[y].push_back(lca);
+		temporaryStructure[y].push_back(lca);
 	}
 
 	// Dernier traitement entre le dernier et le premier point du polygone
@@ -359,21 +359,17 @@ void Polygon::computeTemporaryStructure()
 
 		LCAStruct lca;
 		lca.ymax = std::max(current.getY(), next.getY());
+		lca.ymin = std::min(current.getY(), next.getY());
+		lca.xmax = (lca.ymin == current.getY()) ? next.getX() : current.getX();
 		lca.xmin = (lca.ymax == current.getY()) ? next.getX() : current.getX();
+
 		lca.coeffInversed = (coeff != 0) ? 1 / coeff : 0;
-		mTemporaryStructure[y].push_back(lca);
+		temporaryStructure[y].push_back(lca);
 	}	
-
-	// Partie parcours
-	/*std::list<LCAStruct> lca_active;
-	for (std::vector<std::list<LCAStruct>>::iterator it = mTemporaryStructure.begin(); it != mTemporaryStructure.end(); ++it)
-	{
-
-	}*/
 
 	
 	int i = ymin;
-	for (std::vector<std::list<LCAStruct>>::iterator it = mTemporaryStructure.begin(); it != mTemporaryStructure.end(); ++it)
+	for (std::vector<std::list<LCAStruct>>::iterator it = temporaryStructure.begin(); it != temporaryStructure.end(); ++it)
 	{
 		for (std::list<LCAStruct>::iterator jt = (*it).begin(); jt != (*it).end(); ++jt)
 		{
@@ -381,20 +377,75 @@ void Polygon::computeTemporaryStructure()
 		}
 		i++;
 	}
+	
+	
+	// Partie parcours
+	int y = ymin;
+	std::list<LCAStruct> lca_active;
+	for (std::vector<std::list<LCAStruct>>::iterator it = temporaryStructure.begin(); it != temporaryStructure.end(); ++it)
+	{
+		// Ajout des nouveaux maillons
+		if ((*it).size() > 0)
+			lca_active.insert(lca_active.end(), it->begin(), it->end());
 
+		// Suppression de ceux atteints
+		std::list<LCAStruct>::iterator i = lca_active.begin();
+		while (i != lca_active.end())
+		{
+			if (y == i->ymax)
+				lca_active.erase(i++);
+			else
+				++i;
+		}
 
+		// Tri de la liste
+		lca_active.sort(compareXMin);
+
+		// Enregistrement des lignes
+		for (std::list<LCAStruct>::iterator jt = lca_active.begin(); jt != lca_active.end(); ++jt)
+		{
+			std::cout << y << " => xmin: " << (*jt).xmin << std::endl;
+						
+			Line l;
+			l.start = Vector2((*jt).xmin, y);
+			l.end = Vector2((*(++jt)).xmin, y);
+			mAreaFilledLines.push_back(l);
+		}
+		std::cout << std::endl;
+
+		// Mise à jour des x
+		for (std::list<LCAStruct>::iterator jt = lca_active.begin(); jt != lca_active.end(); ++jt)
+		{
+			(*jt).xmin += (*jt).coeffInversed;
+		}
+			
+
+		++y;
+	}
 }
 
 void Polygon::fill()
 {
 	glColor4f(mColor[0], mColor[1], mColor[2], 0.6f);
+	
+	/*
 	glBegin(GL_POINTS);
 
-	for (unsigned int i = 0; i < mAreaFilled.size(); ++i)	
-		glVertex2f(mAreaFilled[i].getX(), mAreaFilled[i].getY());
+	for (unsigned int i = 0; i < mAreaFilledPoints.size(); ++i)	
+		glVertex2f(mAreaFilledPoints[i].getX(), mAreaFilledPoints[i].getY());
 
 	glEnd();
+	*/
 
+	glBegin(GL_LINES);
+
+	for (unsigned int i = 0; i < mAreaFilledLines.size(); ++i)
+	{
+		glVertex2f(mAreaFilledLines[i].start.getX(), mAreaFilledLines[i].start.getY());
+		glVertex2f(mAreaFilledLines[i].end.getX(), mAreaFilledLines[i].end.getY());
+	}		
+
+	glEnd();
 }
 
 bool intersection(Vector2& sA, Vector2& sB, Vector2& dA, Vector2& dB, Vector2& inter)

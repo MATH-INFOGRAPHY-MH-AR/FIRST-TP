@@ -57,8 +57,9 @@ public:
 
 private:
 	std::vector<Vector2> mVectorList;
-	std::vector<Vector2> mAreaFilled;
-	std::vector<std::list<LCAStruct>> mTemporaryStructure;
+
+	std::vector<Vector2> mAreaFilledPoints;
+	std::vector<Line> mAreaFilledLines;
 
 	float* mColor;
 };

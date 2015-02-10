@@ -253,7 +253,6 @@ float Vector2::angleBetween(const Vector2& v) const
 float Vector2::angleOrientedBetween(const Vector2& v) const
 {
 	float orientation = orientationTriangle(v);
-	std::cout << orientation << std::endl;
 
 	if (orientation < 0)
 		return angleBetween(v);
