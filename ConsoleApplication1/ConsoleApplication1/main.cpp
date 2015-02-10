@@ -26,7 +26,7 @@ void display()
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	
+	/*
 	Polygon p;
 	p.add(Vector2(30, 50));
 	p.add(Vector2(150, 10));
@@ -37,30 +37,33 @@ void display()
 	p.computeTemporaryStructure();
 	p.draw();
 	p.fill();
-	
+	*/
 
 	// Dessin des polygones
 	for (unsigned int i = 0; i < polygons.size(); ++i)
 	{
 		polygons[i]->draw();
-		polygons[i]->fill();
+		polygons[i]->fillLines();
 	}
 
 	// Dessin des fenêtres
 	for (unsigned int i = 0; i < windows.size(); ++i)
 	{
 		windows[i]->draw();
-		windows[i]->fill();
+		windows[i]->fillLines();
 	}
 
 	if (SHOW_HIDE_OUTPUT_POLYGONS)
 	{
-		// Calcul du fenêtrage
+		// Calcul du fenêtrage et du remplissage LCA
 		calcAllPolygonWindowed();
+		computeAllPolygonWindowedLCA();
+
 		// Dessin du résultat de fenêtrage
 		for (unsigned int i = 0; i < outputPolygons.size(); ++i)
 		{
 			outputPolygons[i]->draw();
+			outputPolygons[i]->fillPoints();
 		}
 	}	
 
@@ -89,7 +92,7 @@ int main(int argc, char** argv)
 {
 
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGBA | GLUT_ALPHA | GLUT_MULTISAMPLE);
+	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGBA | GLUT_ALPHA);
 	glutInitWindowPosition(10, 10);
 	glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 	glutCreateWindow("Fenetrage et remplissage");
@@ -100,8 +103,8 @@ int main(int argc, char** argv)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	glEnable(GLUT_MULTISAMPLE);
-	glEnable(GL_LINE_SMOOTH);
+	// glEnable(GLUT_MULTISAMPLE);
+	// glEnable(GL_LINE_SMOOTH);
 
 	glutKeyboardFunc(key);
 	glutMouseFunc(mouse);

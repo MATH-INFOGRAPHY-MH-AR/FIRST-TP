@@ -23,7 +23,7 @@ void key(unsigned char k, int x, int y)
 				if (CURRENT_VERTEX_EDITED >= 1)
 				{
 					polygons[CURRENT_POLYGON_EDITED]->remove(CURRENT_VERTEX_EDITED - 1);
-					polygons[CURRENT_POLYGON_EDITED]->computeFillArea();
+					polygons[CURRENT_POLYGON_EDITED]->computeLCAStructure();
 					
 					if (CURRENT_VERTEX_EDITED > polygons[CURRENT_POLYGON_EDITED]->getNbVertices())
 						CURRENT_VERTEX_EDITED = polygons[CURRENT_POLYGON_EDITED]->getNbVertices();
@@ -34,7 +34,7 @@ void key(unsigned char k, int x, int y)
 				if (CURRENT_VERTEX_EDITED >= 1)
 				{
 					windows[CURRENT_POLYGON_EDITED]->remove(CURRENT_VERTEX_EDITED - 1);
-					windows[CURRENT_POLYGON_EDITED]->computeFillArea();
+					windows[CURRENT_POLYGON_EDITED]->computeLCAStructure();
 
 					if (CURRENT_VERTEX_EDITED > polygons[CURRENT_POLYGON_EDITED]->getNbVertices())
 						CURRENT_VERTEX_EDITED = polygons[CURRENT_POLYGON_EDITED]->getNbVertices();
@@ -111,7 +111,7 @@ void mouseDown(int button, int x, int y)
 				polygons[CURRENT_POLYGON_EDITED]->add(Vector2(xF, yF));
 			else
 				polygons[CURRENT_POLYGON_EDITED]->insert(CURRENT_VERTEX_EDITED, Vector2(xF, yF));			
-			polygons[CURRENT_POLYGON_EDITED]->computeFillArea();
+			polygons[CURRENT_POLYGON_EDITED]->computeLCAStructure();
 		}
 			
 		else if (WINDOW_OR_POLYGON_EDITED == 2 && CURRENT_POLYGON_EDITED >= 0 && CURRENT_POLYGON_EDITED < windows.size())
@@ -120,7 +120,7 @@ void mouseDown(int button, int x, int y)
 				windows[CURRENT_POLYGON_EDITED]->add(Vector2(xF, yF));
 			else
 				windows[CURRENT_POLYGON_EDITED]->insert(CURRENT_VERTEX_EDITED, Vector2(xF, yF));
-			windows[CURRENT_POLYGON_EDITED]->computeFillArea();
+			windows[CURRENT_POLYGON_EDITED]->computeLCAStructure();
 		}
 		CURRENT_VERTEX_EDITED++;
 	}
@@ -175,12 +175,11 @@ void mouseUp(int button, int x, int y)
 		MIDDLE_BUTTON_PRESSED = false;
 		if (WINDOW_OR_POLYGON_EDITED == 1 && CURRENT_POLYGON_EDITED >= 0 && CURRENT_POLYGON_EDITED < polygons.size())
 		{
-			polygons[CURRENT_POLYGON_EDITED]->computeFillArea();
-			std::cout << polygons[CURRENT_POLYGON_EDITED]->isConvex() << std::endl;
+			polygons[CURRENT_POLYGON_EDITED]->computeLCAStructure();
 		}
 		else if (WINDOW_OR_POLYGON_EDITED == 2 && CURRENT_POLYGON_EDITED >= 0 && CURRENT_POLYGON_EDITED < windows.size())
 		{
-			windows[CURRENT_POLYGON_EDITED]->computeFillArea();
+			windows[CURRENT_POLYGON_EDITED]->computeLCAStructure();
 		}
 	}
 
@@ -212,8 +211,8 @@ void initMenu()
 	glutCreateMenu(select);
 	glutAddSubMenu("Polygon", polygonMenu);
 	glutAddSubMenu("Window", windowMenu);
-	glutAddSubMenu("Fill Mod", fillMod);
-	glutAddSubMenu("Window Mod", windowMod);
+	glutAddSubMenu("Fill Mode", fillMod);
+	glutAddSubMenu("Window Mode", windowMod);
 	glutAddMenuEntry("Quitter", 5);
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
@@ -439,7 +438,15 @@ void calcAllPolygonWindowed()
 
 			output = output.polygonWindowed(Polygon(*w));
 		}
-		outputPolygons.push_back(new Polygon(output));		
+		Polygon* finalPolygon = new Polygon(output);
+		outputPolygons.push_back(finalPolygon);
 	}
 
+}
+
+void computeAllPolygonWindowedLCA()
+{
+	unsigned int nbPolygons = outputPolygons.size();
+	for (unsigned int i = 0; i < nbPolygons; ++i)
+		outputPolygons[i]->computeFillArea();		
 }

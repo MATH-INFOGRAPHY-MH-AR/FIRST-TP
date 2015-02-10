@@ -21,4 +21,5 @@ void addPolygonItem(int parent, int index);
 void setColor(int selection);
 
 void calcAllPolygonWindowed();
+void computeAllPolygonWindowedLCA();
 #endif

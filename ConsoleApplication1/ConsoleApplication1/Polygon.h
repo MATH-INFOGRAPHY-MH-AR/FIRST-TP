@@ -49,9 +49,10 @@ public:
 	Polygon polygonWindowed(Polygon& window) const;
 
 	bool isInclude(Vector2&);
-	void computeTemporaryStructure();
+	void computeLCAStructure();
 	void computeFillArea();
-	void fill();
+	void fillLines();
+	void fillPoints();
 
 	void draw() const;
 
