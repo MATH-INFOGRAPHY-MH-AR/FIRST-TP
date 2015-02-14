@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <iostream>
 
-#include "LCAStruct.h"
+#include "include/LCAStruct.h"
 
 bool compareXMin(const LCAStruct lca_1, const LCAStruct lca_2)
 {

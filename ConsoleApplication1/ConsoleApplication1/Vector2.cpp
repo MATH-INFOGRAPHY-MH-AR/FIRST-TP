@@ -6,8 +6,8 @@ Auteur:								Alexandre Rivet
 */
 
 #include <cmath>
-#include "Vector2.h"
-//#include "MathFunc.h"
+#include "include/Vector2.h"
+
 #define PI 3.14159f
 
 float radianToDegree(float rad);

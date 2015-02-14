@@ -3,9 +3,9 @@
 
 #include <GL/glut.h>
 
-#include "Constants.h"
-#include "Vector2.h"
-#include "FenetreRemplissageInterface.h"
+#include "include/Constants.h"
+#include "include/Vector2.h"
+#include "include/FenetreRemplissageInterface.h"
 
 // Fonction appelée par le clavier
 void key(unsigned char k, int x, int y)

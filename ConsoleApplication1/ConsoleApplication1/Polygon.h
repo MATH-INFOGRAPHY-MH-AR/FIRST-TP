@@ -15,8 +15,8 @@ Auteur:								Alexandre Rivet / Maxime Hélaine
 #include <list>
 #include <algorithm>
 
-#include "Vector2.h"
-#include "LCAStruct.h"
+#include "include/Vector2.h"
+#include "include/LCAStruct.h"
 
 class Polygon
 {

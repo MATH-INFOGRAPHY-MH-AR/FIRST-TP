@@ -4,7 +4,7 @@ Date de création :					06/11/2014
 Date de dernière modification :		04/02/2015
 Auteur:								Alexandre Rivet / Maxime Hélaine
 */
-#include "Polygon.h"
+#include "include/Polygon.h"
 
 Polygon::Polygon()
 {

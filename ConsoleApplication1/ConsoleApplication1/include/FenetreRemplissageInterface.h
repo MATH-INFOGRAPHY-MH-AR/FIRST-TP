@@ -22,4 +22,5 @@ void setColor(int selection);
 
 void calcAllPolygonWindowed();
 void computeAllPolygonWindowedLCA();
+
 #endif

@@ -42,13 +42,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\Alexandre\Downloads\glut-3.7.6-src\glut-3.7.6\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Alexandre\Downloads\glut-3.7.6-src\glut-3.7.6\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Alexandre\Documents\GitHub\FIRST-TP\ConsoleApplication1\ConsoleApplication1\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Alexandre\Documents\GitHub\FIRST-TP\ConsoleApplication1\ConsoleApplication1\libs;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Users\Alexandre\Downloads\glut-3.7.6-src\glut-3.7.6\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Alexandre\Downloads\glut-3.7.6-src\glut-3.7.6\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Alexandre\Documents\GitHub\FIRST-TP\ConsoleApplication1\ConsoleApplication1\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Alexandre\Documents\GitHub\FIRST-TP\ConsoleApplication1\ConsoleApplication1\libs;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -83,15 +83,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Color.h" />
-    <ClInclude Include="Constants.h" />
-    <ClInclude Include="FenetreRemplissageInterface.h" />
-    <ClInclude Include="LCAStruct.h" />
-    <ClInclude Include="Polygon.h" />
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="Vector2.h" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="Color.cpp" />
     <ClCompile Include="Constants.cpp" />
     <ClCompile Include="FenetreRemplissageInterface.cpp" />
@@ -102,6 +93,15 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ConsoleApplication1.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\Color.h" />
+    <ClInclude Include="include\Constants.h" />
+    <ClInclude Include="include\FenetreRemplissageInterface.h" />
+    <ClInclude Include="include\LCAStruct.h" />
+    <ClInclude Include="include\Polygon.h" />
+    <ClInclude Include="include\resource.h" />
+    <ClInclude Include="include\Vector2.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

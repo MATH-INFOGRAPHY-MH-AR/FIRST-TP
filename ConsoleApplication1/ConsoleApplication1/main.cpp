@@ -1,13 +1,14 @@
 #include <stdlib.h>
+
 #include <GL/glut.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-#include "LCAStruct.h"
-#include "Constants.h"
-#include "Vector2.h"
-#include "Polygon.h"
-#include "FenetreRemplissageInterface.h"
+#include "include/LCAStruct.h"
+#include "include/Constants.h"
+#include "include/Vector2.h"
+#include "include/Polygon.h"
+#include "include/FenetreRemplissageInterface.h"
 
 void reshape(int w, int l)
 {
