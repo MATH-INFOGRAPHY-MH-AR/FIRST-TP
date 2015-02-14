@@ -42,13 +42,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\Alexandre\Documents\GitHub\FIRST-TP\ConsoleApplication1\ConsoleApplication1\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Alexandre\Documents\GitHub\FIRST-TP\ConsoleApplication1\ConsoleApplication1\libs;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)/include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)/libs;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Users\Alexandre\Documents\GitHub\FIRST-TP\ConsoleApplication1\ConsoleApplication1\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Alexandre\Documents\GitHub\FIRST-TP\ConsoleApplication1\ConsoleApplication1\libs;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)/include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)/libs;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
