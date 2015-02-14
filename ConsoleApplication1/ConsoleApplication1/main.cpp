@@ -26,33 +26,25 @@ void display()
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	/*
-	Polygon p;
-	p.add(Vector2(30, 50));
-	p.add(Vector2(150, 10));
-	p.add(Vector2(270, 90));
-	p.add(Vector2(270, 190));
-	p.add(Vector2(120, 120));
-	p.add(Vector2(30, 160));
-	p.computeTemporaryStructure();
-	p.draw();
-	p.fill();
-	*/
-
 	// Dessin des polygones
 	for (unsigned int i = 0; i < polygons.size(); ++i)
 	{
 		polygons[i]->draw();
-		polygons[i]->fillLines();
+
+		if (CURRENT_LCA_SHOWN == 1 || CURRENT_LCA_SHOWN == 2)
+			polygons[i]->fillLines(CURRENT_STEP_BY_STEP_CHOSEN);
 	}
 
 	// Dessin des fenêtres
 	for (unsigned int i = 0; i < windows.size(); ++i)
 	{
 		windows[i]->draw();
-		windows[i]->fillLines();
+
+		if (CURRENT_LCA_SHOWN == 1 || CURRENT_LCA_SHOWN == 2)
+			windows[i]->fillLines(CURRENT_STEP_BY_STEP_CHOSEN);
 	}
 
+	// Affichage du fenêtrage
 	if (SHOW_HIDE_OUTPUT_POLYGONS)
 	{
 		// Calcul du fenêtrage et du remplissage LCA
@@ -63,7 +55,9 @@ void display()
 		for (unsigned int i = 0; i < outputPolygons.size(); ++i)
 		{
 			outputPolygons[i]->draw();
-			outputPolygons[i]->fillPoints();
+
+			if (CURRENT_LCA_SHOWN == 1 || CURRENT_LCA_SHOWN == 3)
+				outputPolygons[i]->fillLines(CURRENT_STEP_BY_STEP_CHOSEN);
 		}
 	}	
 
@@ -90,6 +84,22 @@ void display()
 
 int main(int argc, char** argv)
 {
+	/*
+	polygons.push_back(new Polygon());
+	polygons[0]->setColor(0, 0, 1);
+	polygons[0]->add(Vector2(107, 108));
+	polygons[0]->add(Vector2(305, 100));
+	polygons[0]->add(Vector2(300, 356));
+	polygons[0]->add(Vector2(100, 300));
+	polygons[0]->computeLCAStructure();
+
+	windows.push_back(new Polygon());
+	windows[0]->setColor(0, 1, 0);
+	windows[0]->add(Vector2(50, 200));
+	windows[0]->add(Vector2(200, 50));
+	windows[0]->add(Vector2(350, 200));
+	windows[0]->computeLCAStructure();
+	*/
 
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGBA | GLUT_ALPHA);

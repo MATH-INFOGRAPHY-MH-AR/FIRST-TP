@@ -51,7 +51,7 @@ public:
 	bool isInclude(Vector2&);
 	void computeLCAStructure();
 	void computeFillArea();
-	void fillLines();
+	void fillLines(bool);
 	void fillPoints();
 
 	void draw() const;

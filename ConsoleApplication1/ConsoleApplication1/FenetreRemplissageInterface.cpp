@@ -16,7 +16,8 @@ void key(unsigned char k, int x, int y)
 			WINDOW_OR_POLYGON_EDITED = -1;
 			CURRENT_POLYGON_EDITED = -1;
 			CURRENT_VERTEX_EDITED = 0;
-
+			glutPostRedisplay();
+			break;
 		case 127:											// Supprime le vertex sélectionné en cours 
 			if (WINDOW_OR_POLYGON_EDITED == 1 && CURRENT_POLYGON_EDITED >= 0 && CURRENT_POLYGON_EDITED < polygons.size())
 			{
@@ -36,14 +37,17 @@ void key(unsigned char k, int x, int y)
 					windows[CURRENT_POLYGON_EDITED]->remove(CURRENT_VERTEX_EDITED - 1);
 					windows[CURRENT_POLYGON_EDITED]->computeLCAStructure();
 
-					if (CURRENT_VERTEX_EDITED > polygons[CURRENT_POLYGON_EDITED]->getNbVertices())
-						CURRENT_VERTEX_EDITED = polygons[CURRENT_POLYGON_EDITED]->getNbVertices();
+					if (CURRENT_VERTEX_EDITED > windows[CURRENT_POLYGON_EDITED]->getNbVertices())
+						CURRENT_VERTEX_EDITED = windows[CURRENT_POLYGON_EDITED]->getNbVertices();
 				}
 			}
+			glutPostRedisplay();
+			break;
+		case 's':
+			CURRENT_STEP_BY_STEP_CHOSEN = !CURRENT_STEP_BY_STEP_CHOSEN;
+			glutPostRedisplay();
 			break;
 	}
-
-	glutPostRedisplay();
 }
 
 // Fonction appelée pour toute action de la souris (UP & DOWN)
@@ -69,26 +73,18 @@ void motion(int x, int y)
 		{
 			if (CURRENT_VERTEX_EDITED >= 0 && CURRENT_VERTEX_EDITED <= polygons[CURRENT_POLYGON_EDITED]->getNbVertices() )
 			{
-				Vector2 currentPoint = polygons[CURRENT_POLYGON_EDITED]->getPointAt(CURRENT_VERTEX_EDITED - 1);
-				float distance = currentPoint.distance(Vector2(xF, yF));
-				if (distance < 10)
-				{
-					polygons[CURRENT_POLYGON_EDITED]->getPointAt(CURRENT_VERTEX_EDITED - 1).setX(xF);
-					polygons[CURRENT_POLYGON_EDITED]->getPointAt(CURRENT_VERTEX_EDITED - 1).setY(yF);
-				}
+				polygons[CURRENT_POLYGON_EDITED]->getPointAt(CURRENT_VERTEX_EDITED - 1).setX(xF);
+				polygons[CURRENT_POLYGON_EDITED]->getPointAt(CURRENT_VERTEX_EDITED - 1).setY(yF);
+				polygons[CURRENT_POLYGON_EDITED]->computeLCAStructure();
 			} 
 		}
 		else if (WINDOW_OR_POLYGON_EDITED == 2 && CURRENT_POLYGON_EDITED >= 0 && CURRENT_POLYGON_EDITED < windows.size())
 		{
 			if (CURRENT_VERTEX_EDITED >= 0 && CURRENT_VERTEX_EDITED <= windows[CURRENT_POLYGON_EDITED]->getNbVertices())
 			{
-				Vector2 currentPoint = windows[CURRENT_POLYGON_EDITED]->getPointAt(CURRENT_VERTEX_EDITED - 1);
-				float distance = currentPoint.distance(Vector2(xF, yF));
-				if (distance < 10)
-				{
-					windows[CURRENT_POLYGON_EDITED]->getPointAt(CURRENT_VERTEX_EDITED - 1).setX(xF);
-					windows[CURRENT_POLYGON_EDITED]->getPointAt(CURRENT_VERTEX_EDITED - 1).setY(yF);
-				}
+				windows[CURRENT_POLYGON_EDITED]->getPointAt(CURRENT_VERTEX_EDITED - 1).setX(xF);
+				windows[CURRENT_POLYGON_EDITED]->getPointAt(CURRENT_VERTEX_EDITED - 1).setY(yF);
+				windows[CURRENT_POLYGON_EDITED]->computeLCAStructure();
 			}
 		}
 	}
@@ -173,17 +169,7 @@ void mouseUp(int button, int x, int y)
 	if (button == GLUT_MIDDLE_BUTTON)
 	{
 		MIDDLE_BUTTON_PRESSED = false;
-		if (WINDOW_OR_POLYGON_EDITED == 1 && CURRENT_POLYGON_EDITED >= 0 && CURRENT_POLYGON_EDITED < polygons.size())
-		{
-			polygons[CURRENT_POLYGON_EDITED]->computeLCAStructure();
-		}
-		else if (WINDOW_OR_POLYGON_EDITED == 2 && CURRENT_POLYGON_EDITED >= 0 && CURRENT_POLYGON_EDITED < windows.size())
-		{
-			windows[CURRENT_POLYGON_EDITED]->computeLCAStructure();
-		}
 	}
-
-	glutPostRedisplay();
 }
 
 // Initialisation du menu principal
@@ -199,8 +185,9 @@ void initMenu()
 
 	// Menu Choix du Remplissage
 	int fillMod = glutCreateMenu(selectFillMode);
-	glutAddMenuEntry("Method 1", 31);
-	glutAddMenuEntry("Method 2", 32);
+	glutAddMenuEntry("All", 31);
+	glutAddMenuEntry("Only Polygons", 32);
+	glutAddMenuEntry("Only Polygons windowed", 33);
 
 	// Menu Choix du Fenetrage
 	int windowMod = glutCreateMenu(selectWindowMode);
@@ -266,7 +253,8 @@ void selectWindow(int selection)
 // Fonction appelée pour choisir le mode de remplissage
 void selectFillMode(int selection)
 {
-
+	CURRENT_LCA_SHOWN = selection % 10;
+	glutPostRedisplay();
 }
 
 // Fonction appelée pour choisir le mode de fenêtrage
@@ -448,5 +436,5 @@ void computeAllPolygonWindowedLCA()
 {
 	unsigned int nbPolygons = outputPolygons.size();
 	for (unsigned int i = 0; i < nbPolygons; ++i)
-		outputPolygons[i]->computeFillArea();		
+		outputPolygons[i]->computeLCAStructure();		
 }

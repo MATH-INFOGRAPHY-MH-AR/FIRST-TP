@@ -12,9 +12,11 @@ extern std::vector<Polygon*> outputPolygons;
 
 extern bool MIDDLE_BUTTON_PRESSED;
 extern bool SHOW_HIDE_OUTPUT_POLYGONS;
+extern bool CURRENT_STEP_BY_STEP_CHOSEN;
 
 extern int WINDOW_OR_POLYGON_EDITED;
 extern int CURRENT_POLYGON_EDITED;
 extern int CURRENT_VERTEX_EDITED;
+extern int CURRENT_LCA_SHOWN;
 
 #endif

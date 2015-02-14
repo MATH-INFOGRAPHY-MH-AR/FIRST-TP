@@ -130,14 +130,12 @@ Polygon Polygon::polygonWindowed(Polygon& window) const
 	}
 	
 	std::vector<Vector2> pointListInputPolygon = mVectorList;
-
 	std::vector<Vector2> pointListOutputPolygon;
-	
 	std::vector<Vector2> pointListWindow = window.getPoints();
 	pointListWindow.push_back(pointListWindow[0]);
+
 	Vector2 BA = pointListWindow[1] - pointListWindow[0];
 	Vector2 BC = pointListWindow[1] - pointListWindow[2];
-
 	if (pointListWindow.size() >= 3 && BA.orientationTriangle(BC) < 0)
 		std::reverse(pointListWindow.begin(), pointListWindow.end());
 
@@ -188,7 +186,6 @@ Polygon Polygon::polygonWindowed(Polygon& window) const
 				pointListOutputPolygon.push_back(inter);
 				nbPointOutputPolygon++;
 			}
-
 			pointListInputPolygon = pointListOutputPolygon;
 			nbPointInputPolygon = nbPointOutputPolygon;
 		}
@@ -313,7 +310,7 @@ void Polygon::computeLCAStructure()
 		return;
 
 	// Calcul du rectangle englobant
-	float xmin = 500, ymin = 500, xmax = 0, ymax = 0;
+	int xmin = 500, ymin = 500, xmax = 0, ymax = 0;
 	Vector2 tmp;
 	for (unsigned int i = 0; i < mVectorList.size(); ++i)
 	{
@@ -331,6 +328,8 @@ void Polygon::computeLCAStructure()
 			ymax = tmp.getY();
 	}
 
+	// std::cout << abs(ymax - ymin) + 2 << std::endl;
+
 	std::vector<std::list<LCAStruct>> temporaryStructure(abs(ymax - ymin) + 2); // Prise en compte des deux bornes
 
 	// Calcul de la SI
@@ -339,17 +338,26 @@ void Polygon::computeLCAStructure()
 		Vector2 current = *it;
 		Vector2 next = *(it + 1);
 
+		int cX = current.getX(), cY = current.getY(), nX = next.getX(), nY = next.getY();
+
+		current = Vector2(cX, cY);
+		next = Vector2(nX, nY);
+
+		// std::cout << current << " " << next << std::endl;
+
 		if (next.getY() == current.getY())
 			continue;
 
-		int y = std::min(current.getY(), next.getY()) - ymin;		// Pour retomber dans les index du vector
-		float coeff = (next.getX() - current.getX() != 0) ? (next.getY() - current.getY()) / (next.getX() - current.getX()) : 0;
+		int y =(int) (std::min(current.getY(), next.getY()) - ymin);		// Pour retomber dans les index du vector
+		float coeff = (next.getX() - current.getX() != 0) ? (float)(next.getY() - current.getY()) / (float)(next.getX() - current.getX()) : 0;
+
+		// std::cout << coeff << std::endl;
 
 		LCAStruct lca;
 		lca.ymax = (int) std::max(current.getY(), next.getY());
 		lca.ymin = (int) std::min(current.getY(), next.getY());
 		lca.xmax = (int) (lca.ymin == current.getY()) ? next.getX() : current.getX();
-		lca.xmin = (int) (lca.ymax == current.getY()) ? next.getX() : current.getX();
+		lca.xmin = (int) ((lca.ymax == current.getY()) ? next.getX() : current.getX());
 		
 		lca.coeffInversed = (coeff != 0) ? (1 / coeff) : 0;
 		temporaryStructure[y].push_back(lca);
@@ -358,6 +366,10 @@ void Polygon::computeLCAStructure()
 	// Dernier traitement entre le dernier et le premier point du polygone
 	Vector2 current = mVectorList[mVectorList.size() - 1];
 	Vector2 next = mVectorList[0];
+	int cX = current.getX(), cY = current.getY(), nX = next.getX(), nY = next.getY();
+	current = Vector2(cX, cY);
+	next = Vector2(nX, nY);
+
 	if (next.getY() != current.getY())
 	{
 		int y = std::min(current.getY(), next.getY()) - ymin;		// Pour retomber dans les index du vector
@@ -367,7 +379,7 @@ void Polygon::computeLCAStructure()
 		lca.ymax = (int) std::max(current.getY(), next.getY());
 		lca.ymin = (int) std::min(current.getY(), next.getY());
 		lca.xmax = (int) (lca.ymin == current.getY()) ? next.getX() : current.getX();
-		lca.xmin = (int) (lca.ymax == current.getY()) ? next.getX() : current.getX();
+		lca.xmin = (int) ((lca.ymax == current.getY()) ? next.getX() : current.getX());
 
 		lca.coeffInversed = (coeff != 0) ? 1 / coeff : 0;
 		temporaryStructure[y].push_back(lca);
@@ -433,12 +445,9 @@ void Polygon::computeLCAStructure()
 			// std::cout << "MAX:" << (*jt).ymax << std::endl;
 			Line l;
 			l.start = Vector2((*jt).xmin, y);
-			if (jt != lca_active.end())
-			{
-				++jt;
-				l.end = Vector2((*jt).xmin, y);
-				mAreaFilledLines.push_back(l);
-			}			
+			++jt;
+			l.end = Vector2((*jt).xmin, y);
+			mAreaFilledLines.push_back(l);		
 		}		
 
 		// Mise à jour des x
@@ -460,17 +469,34 @@ void Polygon::fillPoints()
 	glEnd();
 }
 
-void Polygon::fillLines()
+void Polygon::fillLines(bool stepByStep)
 {
 	glColor4f(mColor[0], mColor[1], mColor[2], 0.5f);
 
-	glBegin(GL_LINES);
-	for (unsigned int i = 0; i < mAreaFilledLines.size(); ++i)
+	if (!stepByStep)
 	{
-		glVertex2f(mAreaFilledLines[i].start.getX(), mAreaFilledLines[i].start.getY());
-		glVertex2f(mAreaFilledLines[i].end.getX(), mAreaFilledLines[i].end.getY());
-	}		
-	glEnd();	
+		glBegin(GL_LINES);
+		for (unsigned int i = 0; i < mAreaFilledLines.size(); ++i)
+		{
+			glVertex2f(mAreaFilledLines[i].start.getX(), mAreaFilledLines[i].start.getY());
+			glVertex2f(mAreaFilledLines[i].end.getX(), mAreaFilledLines[i].end.getY());
+		}
+		glEnd();
+	}
+	else
+	{
+		std::cout << "Start STEP_BY_STEP" << std::endl;
+		for (unsigned int i = 0; i < mAreaFilledLines.size(); ++i)
+		{
+			glBegin(GL_LINES);
+			glVertex2f(mAreaFilledLines[i].start.getX(), mAreaFilledLines[i].start.getY());
+			glVertex2f(mAreaFilledLines[i].end.getX(), mAreaFilledLines[i].end.getY());
+			glEnd();
+			glFlush();
+			std::cin.ignore();
+		}
+		std::cout << "End STEP_BY_STEP" << std::endl;
+	}	
 }
 
 bool intersection(Vector2& sA, Vector2& sB, Vector2& dA, Vector2& dB, Vector2& inter)
